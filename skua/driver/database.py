@@ -32,7 +32,7 @@ class Database(object):
             self.__conn.commit()
         else:
             raise DBNotConnExp
-
+            
     def executemany(self, cmd, args):
         if self.__conn is not None:
             self.__cursor.executemany(cmd, args)
