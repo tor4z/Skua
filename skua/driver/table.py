@@ -1,4 +1,4 @@
-from exception import DBNotTabExp
+from exception import DBNotTabExp, DBArgExp
 
 class DataTable:
     def __init__(self, conn, tab=""):
@@ -11,14 +11,14 @@ class DataTable:
             raise DBNotTabExp
 
     def __fields2str(self, fields, sep=" "):
-        field_str = ""
-        for it in fields:
-            field_str += "{0}{1}{2},".format(it, sep, fields[it])
-        field_str = field_str[:-1]
+        field_str = ",".join(["{0}{1}{2}".format(it, sep, fields[it]) for it in fields])
         return field_str
 
     def __execute(self, cmd):
         return self.__conn.execte(cmd)
+
+    def __executemany(self, cmd, args):
+        return self.__conn.exectemany(cmd, args)
 
     def create(self, tab, fields):
         cmd = "CREATE TABLE {0}({1})".format(tab, 
@@ -62,11 +62,26 @@ class DataTable:
     def find_all(self, *args, **kwargs):
         return self.find_many(size = 0, *args, **kwargs)
 
-    def add(self, tab="", fields):
+    def add(self, tab="", field):
         self.__check_tab(tab)
-        cmd = "INSERT INTO {0} VALUES({1})".format(self.__tab,
-                                                   ",".join(fields))
+        item  = "({0}) VALUES ({1})".format(",",join(field.keys), 
+                                            ",".join(field.values()))
+        cmd = "INSERT INTO {0} {1}})".format(self.__tab, item)
+
         self.__execte(cmd)
+
+    def add_many(self, fields, tab="")
+        self.__check_tab(tab)
+        if not fields or not isinstance(fields, list):
+            raise DBArgExp
+        
+        keys = ",".join(fields[0].keys())
+        fmtstr = ",".join(["%s" for i in range(len(fields[0].keys()))])
+        values = []
+        for it in fields:
+            values.append(tuple(it.values()))
+        cmd = "INSERT INTO {0} ({1}) VALUES ({2})".format(self.__tab, keys, fmtstr)
+        self.__executemany(cmd, values)
 
     def remove(self, fields, tab=""):
         self.__check_tab(tab)
