@@ -3,3 +3,6 @@ class DBNotConnExp(Exception):
 
 class DBNotTabExp(Exception):
     pass
+
+class DBArgExp(Exception):
+    pass
