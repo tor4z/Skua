@@ -2,7 +2,7 @@ import pymysql
 from .database import ABCDatabase, DatabaseError
 
 
-class DataTable:
+class MySQLDB(ABCDatabase):
 
     def __init__(self):
         super().__init__()
