@@ -1,6 +1,6 @@
 import unittest
 import random
-from skua.driver.mysql import MySQLDB
+from skua.adapter.mysql import MySQLDB
 
 TEST_DB = "skua_test"
 _STR = "asbcdefhijklmnopqrstuvwxyz_"
@@ -21,8 +21,11 @@ class TestMySQL(unittest.TestCase):
 
     def test_exit_table(self):
         mysql = self.new_db()
+        table = "testtable"
         self.assertFalse(mysql.table_exit("some_table_unexist"))
-        self.assertTrue(mysql.table_exit("user"))
+        mysql.create_table(table, {"name": "varchar(20)", 
+            "age": "int"})
+        self.assertTrue(mysql.table_exit(table))
         mysql.close()
         
     def test_new_delete_table(self):
