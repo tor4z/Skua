@@ -11,7 +11,12 @@ def random_str(k):
 class TestMySQL(unittest.TestCase):
     def new_db(self):
         mysql = MySQLDB()
-        mysql.connect(passwd="", db=TEST_DB)
+        mysql.connect(passwd="")
+        try:
+            mysql.create_db(TEST_DB)
+        except:
+            pass
+        mysql.select_db(TEST_DB)
         return mysql
 
     def test_exit_table(self):

@@ -99,6 +99,10 @@ class ABCDatabase:
         self.conn.commit()
         return rows
 
+    def create_db(self, db):
+        sql = f"CREATE DATABASE {db}"
+        return self.execute(sql)
+
     def create_table(self, table, fields):
         sql = self._table_to_sql(table, fields)
         self.execute(sql)
