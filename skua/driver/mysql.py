@@ -14,14 +14,14 @@ class MySQLDB(ABCDatabase):
             user = self._user,
             password = self._passwd,
             charset = self._charset,
-            cursorclass = self._cursorclass,
+            cursorclass = self._cursorclass or pymysql.cursors.DictCursor,
             db = self._db)
 
         if not self._conn.open:
             raise DatabaseError(f"Connect to {user}@{host}:{port} failed.")
 
-    def close():
-        self.corsor.close()
+    def close(self):
+        self.cursor.close()
         self.conn.close()
 
     def _dict_to_find_sql(self, table, fields, orderby=None, asc=True):
@@ -30,15 +30,15 @@ class MySQLDB(ABCDatabase):
         if orderby and not isinstance(orderby, list):
             orderby = [orderby]
 
-        sql = f"SELECT * FROM `{table}` WHERE "
+        sql = f"SELECT * FROM {table} WHERE "
         order_str = ""
 
-        for key in fields.keys():
-            sql += f"`{key}`=%({key})s,"
+        for key, value in fields.items():
+            sql += f"{key} {MySQLDB.ensure_operator(value)},"
 
         if orderby:
             for name in orderby:
-                order_str += f"`{name}`,"
+                order_str += f"{name},"
             order_str = order_str[:-1]
             order_str += "ASC" if asc else "DESC"
 
@@ -51,7 +51,7 @@ class MySQLDB(ABCDatabase):
         key_str = ""
         value_str = ""
         for key in fields.keys():
-            key_str += f"`{key}`,"
+            key_str += f"{key},"
             value_str += f"%({key})s,"
 
         return f"INSERT INTO {table} ({key_str[:-1]}) VALUES ({value_str[:-1]})"
@@ -63,25 +63,25 @@ class MySQLDB(ABCDatabase):
         update_str = ""
         where_str = ""
         for key, value in update.items():
-            update_str += f"`{key}`=`{value}`,"
+            update_str += f"{key}='{value}',"
 
         for key, value in where.items():
-            where_str += f"`{key}`=`{value}`,"
+            where_str += f"{key}='{value}',"
 
         return f"UPDATE {table} SET {update_str[:-1]} WHERE {where_str[:-1]}"
 
     def _dict_to_delete_sql(self, table, fields=None):
         if fields is None:
-            return f"DELETE * FROM `{table}`"
+            return f"DELETE * FROM {table}"
         
-        sql = f"DELETE FROM `{table}` WHERE "
+        sql = f"DELETE FROM {table} WHERE "
         for key in fields.keys():
             sql += f"`{key}`=%({key})s,"
         return sql[:-1]
         
     def _table_to_sql(self, table, fields):
-        sql = f"CREATE  TABLE `{table}` "
-        for key in args.keys():
-            sql += f"`{key}` %({key})s`,"
-        return sql[:-1]
+        field_str = ""
+        for key, value in fields.items():
+            field_str += f"{key} {value},"
+        return f"CREATE  TABLE {table} ({field_str[:-1]})"
 
