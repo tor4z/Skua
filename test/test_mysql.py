@@ -26,6 +26,7 @@ class TestMySQL(unittest.TestCase):
         mysql.create_table(table, {"name": "varchar(20)", 
             "age": "int"})
         self.assertTrue(mysql.table_exit(table))
+        mysql.delete_table(table)
         mysql.close()
         
     def test_new_delete_table(self):
@@ -112,6 +113,28 @@ class TestMySQL(unittest.TestCase):
             mysql.update(table, {"age": new_age}, {"name": name})
             new_user = mysql.find_one(table, {"name": name})
             self.assertEqual(new_user["age"], new_age)
+
+        mysql.delete_table(table)
+        mysql.close()
+
+    def test_add_many(self):
+        mysql = self.new_db()
+        table = "test_add_many"
+        count = 50
+        mysql.create_table(table, {
+            "name": "varchar(255)",
+            "age" : "int"})
+        
+        users = []
+        for _ in range(count):
+            name = random_str(5)
+            age = random.randint(0, 100)
+            users.append({"name": name, 
+                "age": age})
+
+        mysql.add_many(table, users)
+        users = mysql.find_many(table, {})
+        self.assertEqual(len(users), count)
 
         mysql.delete_table(table)
         mysql.close()
