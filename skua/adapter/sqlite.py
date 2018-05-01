@@ -49,6 +49,18 @@ class SQLiteDB(ABCDatabase):
         return f"SELECT COUNT(*) FROM sqlite_master WHERE type='table' \
             AND name='{table}'"
 
+    def _list_to_insert_many_sql(self, table, fields):
+        if not isinstance(fields, list):
+            raise TypeError("List required.")
+
+        key_str = ""
+        value_str = ""
+        for key in fields[0].keys():
+            key_str += f"{key},"
+            value_str += f":{key},"
+
+        return f"INSERT INTO {table} ({key_str[:-1]}) VALUES ({value_str[:-1]})"
+
     def _find(self, table, fields, orderby=None, asc=True, 
             size=None, all=False):
         sql = self._dict_to_find_sql(table, fields, orderby, asc)

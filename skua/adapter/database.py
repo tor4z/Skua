@@ -61,11 +61,13 @@ class ABCDatabase:
         if orderby and not isinstance(orderby, list):
             orderby = [orderby]
 
-        sql = f"SELECT * FROM {table} WHERE "
+        sql = f"SELECT * FROM {table} "
         order_str = ""
+        fields_str = "WHERE "
 
         for key, value in fields.items():
-            sql += f"{key} {ABCDatabase.ensure_operator(value)},"
+            fields_str += f"{key} {ABCDatabase.ensure_operator(value)},"
+        fields_str = fields_str[:-1] if fields else ""
 
         if orderby:
             for name in orderby:
@@ -73,7 +75,7 @@ class ABCDatabase:
             order_str = order_str[:-1]
             order_str += "ASC" if asc else "DESC"
 
-        return sql[:-1] + order_str
+        return sql + fields_str + order_str
 
     def _dict_to_insert_sql(self, table, fields):
         if not isinstance(fields, dict):
@@ -84,6 +86,18 @@ class ABCDatabase:
         for key, value in fields.items():
             key_str += f"{key},"
             value_str += f"'{value}',"
+
+        return f"INSERT INTO {table} ({key_str[:-1]}) VALUES ({value_str[:-1]})"
+
+    def _list_to_insert_many_sql(self, table, fields):
+        if not isinstance(fields, list):
+            raise TypeError("List required.")
+
+        key_str = ""
+        value_str = ""
+        for key in fields[0].keys():
+            key_str += f"{key},"
+            value_str += f"%({key})s,"
 
         return f"INSERT INTO {table} ({key_str[:-1]}) VALUES ({value_str[:-1]})"
 
@@ -183,8 +197,8 @@ class ABCDatabase:
     def add_many(self, table, fields):
         if not isinstance(fields, list):
             raise TypeError("List requied.")
-        sql = self._dict_to_insert_sql(table, fields[0])
-        return self.executemany(sql)
+        sql = self._list_to_insert_many_sql(table, fields)
+        return self.executemany(sql, fields)
 
     def _find(self, table, fields, orderby=None, asc=True, 
             size=None, all=False):
@@ -199,10 +213,10 @@ class ABCDatabase:
             size = min(max(size, 0), rows)
             return self.cursor.fetchmany(size)
 
-    def find_one(self, table, fields, orderby=None, asc=True):
+    def find_one(self, table, fields={}, orderby=None, asc=True):
         return self._find(table, fields, orderby, asc)
 
-    def find_many(self, table, fields, orderby=None, asc=True, 
+    def find_many(self, table, fields={}, orderby=None, asc=True, 
             size=None):
         if size is None:
             return self._find(table, fields, orderby, asc, size, all = True)
