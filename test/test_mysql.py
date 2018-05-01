@@ -67,3 +67,48 @@ class TestMySQL(unittest.TestCase):
 
         mysql.delete_table(table)
         mysql.close()
+
+    def test_delete_item(self):
+        mysql = self.new_db()
+        table = "test_delete_item"
+        mysql.create_table(table, {
+            "name": "varchar(255)",
+            "age" : "int"})
+
+        for _ in range(50):
+            name = random_str(5)
+            age = random.randint(0, 100)
+            mysql.add_one(table, {
+                "name": name,
+                "age": age})
+            user = mysql.find_one(table, {"name": name})
+            self.assertIsNotNone(user)
+            mysql.remove(table, {"name": name})
+            user = mysql.find_one(table, {"name": name})
+            self.assertIsNone(user)
+
+        mysql.delete_table(table)
+        mysql.close()
+
+    def test_update_item(self):
+        mysql = self.new_db()
+        table = "test_update_item"
+        mysql.create_table(table, {
+            "name": "varchar(255)",
+            "age" : "int"})
+
+        for _ in range(50):
+            name = random_str(5)
+            age = random.randint(0, 100)
+            mysql.add_one(table, {
+                "name": name,
+                "age": age})
+
+            old_user = mysql.find_one(table, {"name": name})
+            new_age = random.randint(0, 100)
+            mysql.update(table, {"age": new_age}, {"name": name})
+            new_user = mysql.find_one(table, {"name": name})
+            self.assertEqual(new_user["age"], new_age)
+
+        mysql.delete_table(table)
+        mysql.close()
