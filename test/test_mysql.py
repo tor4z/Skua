@@ -11,7 +11,7 @@ def random_str(k):
 class TestMySQL(unittest.TestCase):
     def new_db(self):
         mysql = MySQLDB()
-        mysql.connect(passwd="root", db=TEST_DB)
+        mysql.connect(passwd="", db=TEST_DB)
         return mysql
 
     def test_exit_table(self):
