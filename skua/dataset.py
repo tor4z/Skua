@@ -1,15 +1,12 @@
-class DataSet(set):
-    def __init__(self):
-        set.__init__(self)
+import collections
 
-    def find_one(self, key):
+class DataSet:
+    def __init__(self, adapter=None):
         pass
 
-    def find_all(self, key):
-        pass
+    def add(self, obj):
+        if not hasattr(obj, "__hash__"):
+            raise TypeError(f"Object {type(obj)} not attribute __hash__")
 
-    def add(self, rec):
-        pass
-
-    def remove(self, key):
+    def remove(self, rec):
         pass
