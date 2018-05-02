@@ -35,9 +35,10 @@ class TestBigDictMySQL(unittest.TestCase):
     def test_setitem_getitem(self):
         mysql = MySQLDB()
         mysql.connect(passwd="")
+        mysql.create_db(TEST_DB)
         mysql.select_db(TEST_DB)
         bd = BigDict(mysql)
-        
+
         for _ in range(50):
             # test string
             key = random_str(10)
