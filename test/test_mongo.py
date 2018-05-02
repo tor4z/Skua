@@ -114,3 +114,20 @@ class TestMongoDB(unittest.TestCase):
 
         mongo.delete_table(table)
         mongo.close()
+        
+    def test_count(self):
+        mongo = self.new_db()
+        table = "test_count"
+        count = 50
+        users = []
+        for _ in range(count):
+            name = random_str(5)
+            age = random.randint(0, 100)
+            users.append({
+                "name": name, 
+                "age": age})
+        mongo.add_many(table, users)
+        self.assertEqual(mongo.count(table, {}), count)
+
+        mongo.delete_table(table)
+        mongo.close()

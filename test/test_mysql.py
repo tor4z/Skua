@@ -138,3 +138,24 @@ class TestMySQL(unittest.TestCase):
 
         mysql.delete_table(table)
         mysql.close()
+
+    def test_count(self):
+        mysql = self.new_db()
+        table = "test_count"
+        count = 50
+        mysql.create_table(table, {
+            "name": "varchar(255)",
+            "age" : "int"})
+        
+        users = []
+        for _ in range(count):
+            name = random_str(5)
+            age = random.randint(0, 100)
+            users.append({
+                "name": name, 
+                "age": age})
+        mysql.add_many(table, users)
+        self.assertEqual(mysql.count(table, {}), count)
+
+        mysql.delete_table(table)
+        mysql.close()

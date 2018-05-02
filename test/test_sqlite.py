@@ -128,3 +128,24 @@ class TestSQLite(unittest.TestCase):
 
         sqlite.delete_table(table)
         sqlite.close()
+
+    def test_count(self):
+        sqlite = self.new_db()
+        table = "test_count"
+        count = 50
+        sqlite.create_table(table, {
+            "name": "varchar(255)",
+            "age" : "int"})
+        
+        users = []
+        for _ in range(count):
+            name = random_str(5)
+            age = random.randint(0, 100)
+            users.append({
+                "name": name, 
+                "age": age})
+        sqlite.add_many(table, users)
+        self.assertEqual(sqlite.count(table, {}), count)
+
+        sqlite.delete_table(table)
+        sqlite.close()
