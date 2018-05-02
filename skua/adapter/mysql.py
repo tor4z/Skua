@@ -7,6 +7,21 @@ class MySQLDB(ABCDatabase):
     def __init__(self):
         super().__init__()
 
+    def connect(self, host=None, port=None, user=None, passwd=None, db=None, 
+            charset=None, cursorclass=None):
+        if self._connected:
+            raise DatabaseError("Can not connect twice to a database in a instance.")
+
+        self._host = host or "localhost"
+        self._port = port or 3306
+        self._user = user or "root"
+        self._passwd = passwd
+        self._db = db
+        self._charset = charset or "utf8mb4"
+        self._cursorclass = cursorclass
+        self._reconnect()
+        self._connected = True
+
     def _reconnect(self):
         self._conn = pymysql.connect(
             host = self._host,
