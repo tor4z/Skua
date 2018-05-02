@@ -1,5 +1,6 @@
 import sqlite3
-from .database import ABCDatabase, DatabaseError
+from .database import (ABCDatabase, 
+    DatabaseError, DatabaseWarning)
 
 def results_gen(results):
     for result in results:
@@ -37,12 +38,12 @@ class SQLiteDB(ABCDatabase):
         field_str = field_str[:-1]
         return f"CREATE  TABLE {table} ({field_str})"
 
-    def select_db(self, db):
-        raise DatabaseError(f"Command 'select db' not suport \
+    def select_db(self, *args, **kwarsg):
+        raise DatabaseWarning(f"Command 'select db' not suport \
             in {self.__class__.__name__}.")
 
-    def create_db(self, db):
-        raise DatabaseError(f"Command 'create db' not suport \
+    def create_db(self, *args, **kwargs):
+        raise DatabaseWarning(f"Command 'create db' not suport \
             in {self.__class__.__name__}.")
 
     def _table_exist_sql(self, table):
