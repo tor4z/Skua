@@ -34,20 +34,8 @@ class ABCDatabase:
         self._cursor = None
         self._connected = False
 
-    def connect(self, host=None, port=None, user=None, passwd=None, db=None, 
-            charset=None, cursorclass=None):
-        if self._connected:
-            raise DatabaseError("Can not connect twice to a database in a instance.")
-
-        self._host = host or "localhost"
-        self._port = port or 3306
-        self._user = user or "root"
-        self._passwd = passwd
-        self._db = db
-        self._charset = charset or "utf8mb4"
-        self._cursorclass = cursorclass
-        self._reconnect()
-        self._connected = True
+    def connect(self):
+        raise NotImplementedError
 
     def close(self):
         raise NotImplementedError
@@ -232,4 +220,7 @@ class ABCDatabase:
         return self.execute(sql)
 
 class DatabaseError(Exception):
+    pass
+
+class DatabaseWarning(Exception):
     pass
