@@ -11,7 +11,7 @@ class ABCDatabase:
 
     @staticmethod
     def eq(value):
-        return f"='{value}'"
+        return f"=\"{value}\""
 
     @staticmethod
     def gt(value):
@@ -71,9 +71,9 @@ class ABCDatabase:
 
         key_str = ""
         value_str = ""
-        for key, value in fields.items():
+        for key in fields.keys():
             key_str += f"{key},"
-            value_str += f"'{value}',"
+            value_str += f"%({key})s,"
 
         return f"INSERT INTO {table} ({key_str[:-1]}) VALUES ({value_str[:-1]})"
 
@@ -128,6 +128,20 @@ class ABCDatabase:
     def _delete_table_sql(self, table):
         return f"DROP TABLE {table}"
 
+    def _count_sql(self, table, fields):
+        if not isinstance(fields, dict):
+            raise TypeError("Dict required.")
+
+        sql = f"SELECT COUNT(*) FROM {table} "
+        if fields:
+            fields_str = "WHERE "
+            for key, value in fields.items():
+                fields_str += f"{key} {self.ensure_operator(value)},"
+            fields_str = fields_str[:-1]
+        else:
+            fields_str = ""
+        return sql + fields_str
+
     def select_db(self, db):
         self.conn.select_db(db)
 
@@ -150,8 +164,8 @@ class ABCDatabase:
             self._reconnect()
         return self._conn
 
-    def execute(self, sql):
-        rows = self.cursor.execute(sql)
+    def execute(self, sql, args={}):
+        rows = self.cursor.execute(sql, args)
         self.conn.commit()
         return rows
             
@@ -180,7 +194,7 @@ class ABCDatabase:
 
     def add_one(self, table, fields):
         sql = self._dict_to_insert_sql(table, fields)
-        return self.execute(sql)
+        return self.execute(sql, fields)
 
     def add_many(self, table, fields):
         if not isinstance(fields, list):
@@ -218,6 +232,12 @@ class ABCDatabase:
     def remove(self, table, fields=None):
         sql = self._dict_to_delete_sql(table, fields)
         return self.execute(sql)
+
+    def count(self, table, fields):
+        sql = self._count_sql(table, fields)
+        self.execute(sql)
+        result = self.cursor.fetchone()
+        return result["COUNT(*)"]
 
 class DatabaseError(Exception):
     pass
