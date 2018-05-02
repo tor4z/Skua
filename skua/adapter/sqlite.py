@@ -7,6 +7,8 @@ def results_gen(results):
         yield dict(result)
 
 class SQLiteDB(ABCDatabase):
+    blob = "BLOB"
+
     def __init__(self):
         super().__init__()
 
@@ -62,6 +64,19 @@ class SQLiteDB(ABCDatabase):
 
         return f"INSERT INTO {table} ({key_str[:-1]}) VALUES ({value_str[:-1]})"
 
+    def _dict_to_insert_sql(self, table, fields):
+        if not isinstance(fields, dict):
+            raise TypeError("Dict required.")
+
+        key_str = ""
+        value_str = ""
+        for key in fields.keys():
+            key_str += f"{key},"
+            value_str += f":{key},"
+
+        return f"INSERT INTO {table} ({key_str[:-1]}) VALUES ({value_str[:-1]})"
+
+
     def _find(self, table, fields, orderby=None, asc=True, 
             size=None, all=False):
         sql = self._dict_to_find_sql(table, fields, orderby, asc)
@@ -77,3 +92,7 @@ class SQLiteDB(ABCDatabase):
             results = self.cursor.fetchmany(size)
 
         return list(results_gen(results)) if results else None
+
+    def add_one(self, table, fields):
+        sql = self._dict_to_insert_sql(table, fields)
+        return self.execute(sql, fields)

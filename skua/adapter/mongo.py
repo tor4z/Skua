@@ -115,3 +115,6 @@ class MongoDB(ABCDatabase):
 
     def remove(self, table, fields={}):
         return self.db[table].delete_many(fields)
+
+    def count(self, table, fields):
+        return self.db[table].find(fields).count()

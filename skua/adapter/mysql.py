@@ -3,6 +3,7 @@ from .database import ABCDatabase, DatabaseError
 
 
 class MySQLDB(ABCDatabase):
+    blob = "BLOB"
 
     def __init__(self):
         super().__init__()
@@ -15,7 +16,7 @@ class MySQLDB(ABCDatabase):
         self._host = host or "localhost"
         self._port = port or 3306
         self._user = user or "root"
-        self._passwd = passwd
+        self._passwd = passwd or ""
         self._db = db
         self._charset = charset or "utf8mb4"
         self._cursorclass = cursorclass
