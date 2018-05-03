@@ -43,15 +43,18 @@ class ABCDatabase:
     def _reconnect(self):
         raise NotImplementedError
 
-    def _dict_to_find_sql(self, table, fields, orderby=None, asc=True):
+    def _dict_to_find_sql(self, table, fields, orderby=None, asc=True, limit=None, offset=0):
         if not isinstance(fields, dict):
             raise TypeError("Dict required.")
         if orderby and not isinstance(orderby, list):
             orderby = [orderby]
+        if not isinstance(offset, int):
+            raise TypeError("Offset should be a number.")
 
         sql = f"SELECT * FROM {table} "
         order_str = ""
         fields_str = "WHERE "
+        offset_str = "" if limit is None else f" LIMIT {limit} OFFSET {offset}"
 
         for key, value in fields.items():
             fields_str += f"{key} {ABCDatabase.ensure_operator(value)},"
@@ -63,7 +66,7 @@ class ABCDatabase:
             order_str = order_str[:-1]
             order_str += "ASC" if asc else "DESC"
 
-        return sql + fields_str + order_str
+        return sql + fields_str + order_str + offset_str
 
     def _dict_to_insert_sql(self, table, fields):
         if not isinstance(fields, dict):
@@ -104,8 +107,8 @@ class ABCDatabase:
         return f"UPDATE {table} SET {update_str[:-1]} WHERE {where_str[:-1]}"
 
     def _dict_to_delete_sql(self, table, fields=None):
-        if fields is None:
-            return f"DELETE * FROM {table}"
+        if not fields:
+            return f"DELETE FROM {table}"
         
         sql = f"DELETE FROM {table} WHERE "
         for key, value in fields.items():
@@ -203,41 +206,45 @@ class ABCDatabase:
         return self.executemany(sql, fields)
 
     def _find(self, table, fields, orderby=None, asc=True, 
-            size=None, all=False):
-        sql = self._dict_to_find_sql(table, fields, orderby, asc)
+            limit=None, offset=0):
+        sql = self._dict_to_find_sql(table, fields, orderby, asc, limit, offset)
         rows = self.execute(sql)
-        if size is None:
-            if all:
-                return self.cursor.fetchall()
-            else: 
-                return self.cursor.fetchone()
+        if limit == 1:
+            return self.cursor.fetchone()
         else:
-            size = min(max(size, 0), rows)
-            return self.cursor.fetchmany(size)
+            return self.cursor.fetchall()
 
-    def find_one(self, table, fields={}, orderby=None, asc=True):
-        return self._find(table, fields, orderby, asc)
+    def find_one(self, table, fields={}, orderby=None, asc=True, 
+            offset=0):
+        return self._find(table, fields, orderby, asc, limit = 1, 
+            offset = offset)
 
     def find_many(self, table, fields={}, orderby=None, asc=True, 
-            size=None):
-        if size is None:
-            return self._find(table, fields, orderby, asc, size, all = True)
-        else:
-            return self._find(table, fields, orderby, asc, size)
+            limit=None, offset=0):
+        return self._find(table, fields, orderby, asc, 
+            limit = limit, offset = offset)
 
     def update(self, table, update, where):
         sql = self._dict_to_update_sql(table, update, where)
         return self.execute(sql)
 
-    def remove(self, table, fields=None):
+    def remove(self, table, fields={}):
         sql = self._dict_to_delete_sql(table, fields)
         return self.execute(sql)
 
-    def count(self, table, fields):
+    def count(self, table, fields={}):
         sql = self._count_sql(table, fields)
         self.execute(sql)
         result = self.cursor.fetchone()
         return result["COUNT(*)"]
+
+    def add_update(self, table, fields, where):
+        result = self.find_one(table, where)
+        if not result:
+            self.add_one(table, fields)
+        else:
+            if result != fields:
+                self.update(table, fields, where)
 
 class DatabaseError(Exception):
     pass
