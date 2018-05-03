@@ -18,7 +18,7 @@ class MySQLDB(ABCDatabase):
         self._user = user or "root"
         self._passwd = passwd or ""
         self._db = db
-        self._charset = charset or "utf8mb4"
+        self._charset = charset or "utf8"
         self._cursorclass = cursorclass
         self._reconnect()
         self._connected = True
