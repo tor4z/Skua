@@ -78,20 +78,15 @@ class SQLiteDB(ABCDatabase):
 
 
     def _find(self, table, fields, orderby=None, asc=True, 
-            size=None, all=False):
-        sql = self._dict_to_find_sql(table, fields, orderby, asc)
+            limit=None, offset=0):
+        sql = self._dict_to_find_sql(table, fields, orderby, asc, limit, offset)
         rows = self.execute(sql)
-        if size is None:
-            if all:
-                results = self.cursor.fetchall()
-            else: 
-                result = self.cursor.fetchone()
-                return dict(result) if result else None
+        if limit == 1:
+            result = self.cursor.fetchone()
+            return dict(result) if result else None
         else:
-            size = min(max(size, 0), rows)
-            results = self.cursor.fetchmany(size)
-
-        return list(results_gen(results)) if results else None
+            results = self.cursor.fetchall()
+            return list(results_gen(results)) if results else []
 
     def add_one(self, table, fields):
         sql = self._dict_to_insert_sql(table, fields)
