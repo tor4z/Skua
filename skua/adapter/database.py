@@ -125,8 +125,11 @@ class ABCDatabase:
     def _table_exist_sql(self, table):
         raise NotImplementedError
 
+    def _db_exist_sql(self, db):
+        raise NotImplementedError
+
     def _create_db_sql(self, db):
-        return f"CREATE DATABASE {db}"
+        return f"CREATE DATABASE IF NOT EXISTS {db}"
 
     def _delete_table_sql(self, table):
         return f"DROP TABLE {table}"
@@ -145,7 +148,9 @@ class ABCDatabase:
             fields_str = ""
         return sql + fields_str
 
-    def select_db(self, db):
+    def select_db(self, db, create=True):
+        if not self.db_exist(db) and create:
+            self.create_db(db)
         self.conn.select_db(db)
 
     @property
@@ -176,6 +181,12 @@ class ABCDatabase:
         rows = self.cursor.executemany(sql, args)
         self.conn.commit()
         return rows
+
+    def db_exist(self, db):
+        sql = self._db_exist_sql(db)
+        self.execute(sql)
+        result = self.cursor.fetchone()
+        return result["COUNT(*)"] == 1
 
     def create_db(self, db):
         sql = self._create_db_sql(db)

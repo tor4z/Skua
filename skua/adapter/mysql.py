@@ -45,9 +45,13 @@ class MySQLDB(ABCDatabase):
         return self._conn.open
 
     def _table_exist_sql(self, table):
-        return f"SELECT COUNT(*) FROM information_schema.tables WHERE \
-            table_name='{table}'"
+        return f"SELECT COUNT(*) FROM INFORMATION_SCHEMA.TABLES WHERE \
+            TABLE_NAME='{table}'"
             
+    def _db_exist_sql(self, db):
+        return f"SELECT COUNT(*) FROM INFORMATION_SCHEMA.SCHEMATA WHERE \
+            SCHEMA_NAME='{db}'"
+
     def _dict_to_insert_binary_sql(self, table, fields):
         if not isinstance(fields, dict):
             raise TypeError("Dict required.")

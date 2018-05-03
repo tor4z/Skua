@@ -12,10 +12,6 @@ class TestMySQL(unittest.TestCase):
     def new_db(self):
         mysql = MySQLDB()
         mysql.connect(passwd="")
-        try:
-            mysql.create_db(TEST_DB)
-        except:
-            pass
         mysql.select_db(TEST_DB)
         return mysql
 

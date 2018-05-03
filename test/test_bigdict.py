@@ -10,8 +10,11 @@ def random_str(k):
     return "".join(random.choices(_STR, k=5))
 
 class TestBigDictSQLite(unittest.TestCase):
+    def get_bd(self):
+        return BigDict()
+
     def test_setitem_getitem(self):
-        bd = BigDict()
+        bd = self.get_bd()
         for _ in range(50):
             # test string
             key = random_str(10)
@@ -28,7 +31,7 @@ class TestBigDictSQLite(unittest.TestCase):
         bd.delete()
 
     def test_delitem(self):
-        bd = BigDict()
+        bd = self.get_bd()
         for _ in range(50):
             key = random_str(10)
             value = random_str(20)
@@ -43,7 +46,7 @@ class TestBigDictSQLite(unittest.TestCase):
         bd.delete()
 
     def test_len(self):
-        bd = BigDict()
+        bd = self.get_bd()
         length = random.randint(1, 50)
         for _ in range(length):
             key = random_str(10)
@@ -54,7 +57,7 @@ class TestBigDictSQLite(unittest.TestCase):
         bd.delete()
 
     def test_keys(self):
-        bd = BigDict()
+        bd = self.get_bd()
         length = random.randint(30, 50)
         keys = []
         for _ in range(length):
@@ -72,7 +75,7 @@ class TestBigDictSQLite(unittest.TestCase):
 
     def test_iter(self):
         # yield from keys
-        bd = BigDict()
+        bd = self.get_bd()
         length = random.randint(30, 50)
         keys = []
         for _ in range(length):
@@ -90,7 +93,7 @@ class TestBigDictSQLite(unittest.TestCase):
 
     def test_values(self):
         # yield from keys
-        bd = BigDict()
+        bd = self.get_bd()
         length = random.randint(30, 50)
         values = []
         for _ in range(length):
@@ -107,7 +110,7 @@ class TestBigDictSQLite(unittest.TestCase):
         bd.delete()
 
     def test_items(self):
-        bd = BigDict()
+        bd = self.get_bd()
         length = random.randint(30, 50)
         values = []
         keys = []
@@ -131,7 +134,7 @@ class TestBigDictSQLite(unittest.TestCase):
         bd.delete()
 
     def test_pop(self):
-        bd = BigDict()
+        bd = self.get_bd()
         dic = {}
 
         length = random.randint(30, 50)
@@ -148,7 +151,7 @@ class TestBigDictSQLite(unittest.TestCase):
         bd.delete()
 
     def test_popitem(self):
-        bd = BigDict()
+        bd = self.get_bd()
         dic = {}
 
         length = random.randint(30, 50)
@@ -168,7 +171,7 @@ class TestBigDictSQLite(unittest.TestCase):
         bd.delete()
 
     def test_clear(self):
-        bd = BigDict()
+        bd = self.get_bd()
 
         length = random.randint(30, 50)
         for _ in range(length):
@@ -180,7 +183,7 @@ class TestBigDictSQLite(unittest.TestCase):
         bd.delete()
 
     def test_update(self):
-        bd = BigDict()
+        bd = self.get_bd()
         dic = {}
         length = random.randint(30, 50)
 
@@ -198,15 +201,14 @@ class TestBigDictSQLite(unittest.TestCase):
         bd.delete()
 
 class TestBigDictMySQL(unittest.TestCase):
-    def test_setitem_getitem(self):
+    def get_bd(self):
         mysql = MySQLDB()
         mysql.connect(passwd="")
-        try:
-            mysql.create_db(TEST_DB)
-        except:
-            pass
         mysql.select_db(TEST_DB)
-        bd = BigDict(mysql)
+        return BigDict(mysql)
+
+    def test_setitem_getitem(self):
+        bd = self.get_bd()
 
         for _ in range(50):
             # test string
