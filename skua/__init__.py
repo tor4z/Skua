@@ -1,3 +1,3 @@
 from .adapter.mysql import MySQLDB
-from .dataset import DataSet
+from .bigset import BigSet
 from .bigdict import BigDict
