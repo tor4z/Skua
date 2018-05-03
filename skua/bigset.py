@@ -1,6 +1,4 @@
-import collections
-
-class DataSet:
+class BigSet:
     def __init__(self, adapter=None):
         pass
 
