@@ -38,9 +38,12 @@ class BigDict:
     def __setitem__(self, key, value):
         if not isinstance(key, str):
             key = str(key)
-        self._adapter.add_one(self._table, {
-            self.KEY: key,
-            self.VALUE: pickle.dumps(value, 2)})
+        data = {self.KEY: key,
+                self.VALUE: pickle.dumps(value, 2)}
+        if hasattr(self._adapter, "add_one_binary"):
+            self._adapter.add_one_binary(self._table, data)
+        else:
+            self._adapter.add_one(self._table, data)
 
     def __delitem__(self, key):
         self._adapter.remove(self._table, {self.KEY: key})

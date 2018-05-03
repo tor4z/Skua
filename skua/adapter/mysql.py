@@ -48,3 +48,36 @@ class MySQLDB(ABCDatabase):
         return f"SELECT COUNT(*) FROM information_schema.tables WHERE \
             table_name='{table}'"
             
+    def _dict_to_insert_binary_sql(self, table, fields):
+        if not isinstance(fields, dict):
+            raise TypeError("Dict required.")
+
+        key_str = ""
+        value_str = ""
+        for key in fields.keys():
+            key_str += f"{key},"
+            value_str += f"_binary %({key})s,"
+
+        return f"INSERT INTO {table} ({key_str[:-1]}) VALUES ({value_str[:-1]})"
+
+    def _list_to_insert_many_binary_sql(self, table, fields):
+        if not isinstance(fields, list):
+            raise TypeError("List required.")
+
+        key_str = ""
+        value_str = ""
+        for key in fields[0].keys():
+            key_str += f"{key},"
+            value_str += f"_binary %({key})s,"
+
+        return f"INSERT INTO {table} ({key_str[:-1]}) VALUES ({value_str[:-1]})"
+
+    def add_one_binary(self, table, fields):
+        sql = self._dict_to_insert_binary_sql(table, fields)
+        return self.execute(sql, fields)
+
+    def add_many_binary(self, table, fields):
+        if not isinstance(fields, list):
+            raise TypeError("List requied.")
+        sql = self._list_to_insert_many_binary_sql(table, fields)
+        return self.executemany(sql, fields)
