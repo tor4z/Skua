@@ -93,7 +93,6 @@ class TestBigDictSQLite(unittest.TestCase):
         bd.delete()
 
     def test_values(self):
-        # yield from keys
         bd = self.get_bd()
         length = random.randint(30, 50)
         values = []
@@ -181,6 +180,22 @@ class TestBigDictSQLite(unittest.TestCase):
             bd[key] = value
         bd.clear()
         self.assertEqual(len(bd), 0)
+        bd.delete()
+
+    def test_in(self):
+        bd = self.get_bd()
+
+        length = random.randint(30, 50)
+        keys = []
+        for _ in range(length):
+            key = random_str(10)
+            keys.append(key)
+            value = random_str(20)
+            bd[key] = value
+        
+        for key in keys:
+            self.assertTrue(key in bd)
+        
         bd.delete()
 
     def test_update(self):
