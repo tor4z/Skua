@@ -35,7 +35,10 @@ class TestBigDictMySQL(unittest.TestCase):
     def test_setitem_getitem(self):
         mysql = MySQLDB()
         mysql.connect(passwd="")
-        mysql.create_db(TEST_DB)
+        try:
+            mysql.create_db(TEST_DB)
+        except:
+            pass
         mysql.select_db(TEST_DB)
         bd = BigDict(mysql)
 
