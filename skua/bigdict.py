@@ -1,32 +1,13 @@
-import pickle
-from .adapter import ABCDatabase, SQLiteDB, DatabaseWarning
+from .adapter import (ABCDatabase, SQLiteDB, \
+    DatabaseWarning)
+from .container import Container
 
-class BigDict:
+class BigDict(Container):
     KEY = "_key"
     VALUE = "_value"
 
-    @classmethod
-    def _loads(cls, data):
-        return pickle.loads(data)
-    
-    @classmethod
-    def _dumps(csl, data):
-        return pickle.dumps(data, 2)
-
     def __init__(self, adapter=None, name=None):
-        if adapter and not isinstance(adapter, ABCDatabase):
-            raise TypeError("adapter should be a database object.")
-        elif adapter:
-            if not adapter.is_open:
-                raise RuntimeError("adapter not connected.")
-
-        if adapter:
-            self._adapter = adapter
-        else:
-            self._adapter = SQLiteDB()
-            self._adapter.connect()
-
-        self._table = name or f"skua_{self.__class__.__name__}"
+        super().__init__(adapter, name)
         if not self._adapter.table_exit(self._table):
             try:
                 self._adapter.create_table(self._table, {
@@ -35,8 +16,11 @@ class BigDict:
             except DatabaseWarning:
                 pass
 
+    def _find_one_by_key(self, key):
+        return self._adapter.find_one(self._table, {self.KEY: key})
+
     def __getitem__(self, key):
-        result = self._adapter.find_one(self._table, {self.KEY: key})
+        result = self._find_one_by_key(key)
         if result:
             value = result.get(self.VALUE)
             return self._loads(value)
@@ -56,8 +40,12 @@ class BigDict:
     def __delitem__(self, key):
         self._adapter.remove(self._table, {self.KEY: key})
 
-    def __len__(self):
-        return self._adapter.count(self._table, {})
+    def __contains__(self, key):
+        result = result = self._find_one_by_key(key)
+        if result:
+            return True
+        else:
+            return False
 
     def __iter__(self):
         yield from self.keys()
@@ -116,11 +104,3 @@ class BigDict:
             if self.get(key) != value:
                 self.__setitem__(key, value)
 
-    def clear(self):
-        self._adapter.remove(self._table, {})
-    
-    def __del__(self):
-        self._adapter.close()
-
-    def delete(self):
-        self._adapter.delete_table(self._table)
