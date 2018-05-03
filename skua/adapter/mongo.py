@@ -91,23 +91,24 @@ class MongoDB(ABCDatabase):
             raise TypeError("List requied.")
         return self.db[table].insert_many(fields)
 
-    def find_one(self, table, fields={}, orderby=None, asc=True):
+    def find_one(self, table, fields={}, orderby=None, asc=True, offset=0):
         if not isinstance(fields, dict):
             raise TypeError("Dict requied.")
         if orderby:
             order = pymongo.ASCENDING if asc else pymongo.DESCENDING
-            result = self.db[table].find_one(fields, sort = [(orderby, order)])
+            result = self.db[table].find_one(fields, sort = [(orderby, order)], skip = offset)
         else:
-            result = self.db[table].find_one(fields)
+            result = self.db[table].find_one(fields, skip = offset)
         return result
 
     def find_many(self, table, fields={}, orderby=None, asc=True, 
-            size=0):
+            limit=0, offset=0):
         if orderby:
             order = pymongo.ASCENDING if asc else pymongo.DESCENDING
-            result = self.db[table].find(fields).sort(orderby, order).limit(size)
+            result = self.db[table].find(fields).sort(orderby, order)\
+                .skip(offset).limit(limit)
         else:
-            result = self.db[table].find(fields).limit(size)
+            result = self.db[table].find(fields).skip(offset).limit(limit)
         return list(result)
 
     def update(self, table, update={}, where={}):
@@ -118,3 +119,6 @@ class MongoDB(ABCDatabase):
 
     def count(self, table, fields):
         return self.db[table].find(fields).count()
+
+    def add_update(self, table, fields, where):
+        return self.db[table].update_one(where, {"$set": fields}, upsert = True)
