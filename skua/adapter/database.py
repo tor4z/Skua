@@ -1,5 +1,6 @@
 class ABCDatabase:
     operators = [">", "<", ">=", "<=", "="]
+    blob = "BLOB"
 
     @classmethod
     def ensure_operator(cls, value):

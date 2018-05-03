@@ -41,6 +41,7 @@ class MongoDB(ABCDatabase):
             user_info = ""
 
         self._uri = f"mongodb://{user_info}{quote_plus(host)}:{port}"
+        self._reconnect()
         self._connected = True
 
     def _reconnect(self):
@@ -48,6 +49,9 @@ class MongoDB(ABCDatabase):
 
     @property
     def is_open(self):
+        if not self._conn:
+            return False
+
         try:
             self._conn.is_mongos
             return True

@@ -1,6 +1,6 @@
 import unittest
 import random
-from skua.adapter import MySQLDB
+from skua.adapter import MySQLDB, MongoDB
 from skua.bigdict import BigDict
 
 TEST_DB = "skua_test"
@@ -8,6 +8,7 @@ _STR = "asbcdefhijklmnopqrstuvwxyz_"
 
 def random_str(k):
     return "".join(random.choices(_STR, k=5))
+
 
 class TestBigDictSQLite(unittest.TestCase):
     def get_bd(self):
@@ -200,31 +201,17 @@ class TestBigDictSQLite(unittest.TestCase):
 
         bd.delete()
 
-class TestBigDictMySQL(unittest.TestCase):
+
+class TestBigDictMySQL(TestBigDictSQLite):
     def get_bd(self):
         mysql = MySQLDB()
         mysql.connect(passwd="")
         mysql.select_db(TEST_DB)
         return BigDict(mysql)
 
-    def test_setitem_getitem(self):
-        bd = self.get_bd()
 
-        for _ in range(50):
-            # test string
-            key = random_str(10)
-            value = random_str(20)
-            bd[key] = value
-            self.assertEqual(bd[key], value)
-
-            # test int
-            key = random_str(10)
-            value = random.randint(0, 999999)
-            bd[key] = value
-            self.assertEqual(bd[key], value)
-
-    def test_delitem(self):
-        pass
-
-    def test_len(self):
-        pass
+class TestBigDictMongo(TestBigDictSQLite):
+    def get_bd(self):
+        mongo = MongoDB()
+        mongo.connect(db=TEST_DB)
+        return BigDict(mongo)
