@@ -1,11 +1,12 @@
 from .container import Container
+from .adapter import DatabaseWarning
 
 class BigSet(Container):
     HASH = "_hash"
     OBJECT = "_object"
 
     def __init__(self, adapter=None, name=None):
-        super().__init__()
+        super().__init__(adapter, name)
         try:
             self._adapter.create_table(self._table, {
                 self.HASH: "VARCHAR(50)",

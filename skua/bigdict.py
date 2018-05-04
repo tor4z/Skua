@@ -1,6 +1,5 @@
-from .adapter import (ABCDatabase, SQLiteDB, \
-    DatabaseWarning)
 from .container import Container
+from .adapter import DatabaseWarning
 
 class BigDict(Container):
     KEY = "_key"
