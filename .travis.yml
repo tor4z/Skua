@@ -9,7 +9,7 @@ services:
 
 script:
     - pip install tox
-    - tox -e coverage,flake8
+    - tox -e coverage,flake8,docs
 
 notifications:
   email: false
