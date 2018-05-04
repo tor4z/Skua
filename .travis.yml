@@ -9,7 +9,7 @@ services:
 
 script:
     - pip install tox
-    - tox -e coverage
+    - tox -e coverage,flake8
 
 after_success:
 - codecov
