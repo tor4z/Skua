@@ -17,4 +17,4 @@ setup(name         = NAME,
       author_email = AUTHOR_EMAIL,
       license      = LICENSE,
       url          = URL,
-packages = find_packages(exclude=["test"]))
+packages = find_packages(exclude=["tests"]))
