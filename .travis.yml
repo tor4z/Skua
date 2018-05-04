@@ -8,7 +8,6 @@ services:
   - mongodb
 
 script:
-    - pip install codecov
     - pip install tox
     - tox -e coverage
 
