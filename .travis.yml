@@ -10,6 +10,7 @@ services:
 
 script:
     - pip install codecov
+    - pip install tox
     - tox -e coverage
 
 after_success:
