@@ -40,11 +40,12 @@ class ABCDatabase:
 
     def close(self):
         raise NotImplementedError
-    
+
     def _reconnect(self):
         raise NotImplementedError
 
-    def _dict_to_find_sql(self, table, fields, orderby=None, asc=True, limit=None, offset=0):
+    def _dict_to_find_sql(self, table, fields, orderby=None, asc=True,
+                          limit=None, offset=0):
         if not isinstance(fields, dict):
             raise TypeError("Dict required.")
         if orderby and not isinstance(orderby, list):
@@ -79,7 +80,8 @@ class ABCDatabase:
             key_str += f"{key},"
             value_str += f"%({key})s,"
 
-        return f"INSERT INTO {table} ({key_str[:-1]}) VALUES ({value_str[:-1]})"
+        return f"INSERT INTO {table} ({key_str[:-1]}) VALUES \
+            ({value_str[:-1]})"
 
     def _list_to_insert_many_sql(self, table, fields):
         if not isinstance(fields, list):
@@ -91,7 +93,8 @@ class ABCDatabase:
             key_str += f"{key},"
             value_str += f"%({key})s,"
 
-        return f"INSERT INTO {table} ({key_str[:-1]}) VALUES ({value_str[:-1]})"
+        return f"INSERT INTO {table} ({key_str[:-1]}) VALUES \
+            ({value_str[:-1]})"
 
     def _dict_to_update_sql(self, table, update, where):
         if not isinstance(update, dict) or not isinstance(where, dict):
@@ -110,12 +113,12 @@ class ABCDatabase:
     def _dict_to_delete_sql(self, table, fields=None):
         if not fields:
             return f"DELETE FROM {table}"
-        
+
         sql = f"DELETE FROM {table} WHERE "
         for key, value in fields.items():
             sql += f"{key} {ABCDatabase.ensure_operator(value)},"
         return sql[:-1]
-        
+
     def _table_to_sql(self, table, fields):
         field_str = "id MEDIUMINT NOT NULL AUTO_INCREMENT PRIMARY KEY,"
         for key, value in fields.items():
@@ -167,7 +170,7 @@ class ABCDatabase:
     @property
     def conn(self):
         if not self._connected:
-            raise DatabaseError("Databse not connected.") 
+            raise DatabaseError("Databse not connected.")
 
         if self._conn is None or not self.is_open:
             self._reconnect()
@@ -177,7 +180,7 @@ class ABCDatabase:
         rows = self.cursor.execute(sql, args)
         self.conn.commit()
         return rows
-            
+
     def executemany(self, sql, args):
         rows = self.cursor.executemany(sql, args)
         self.conn.commit()
@@ -217,24 +220,25 @@ class ABCDatabase:
         sql = self._list_to_insert_many_sql(table, fields)
         return self.executemany(sql, fields)
 
-    def _find(self, table, fields, orderby=None, asc=True, 
-            limit=None, offset=0):
-        sql = self._dict_to_find_sql(table, fields, orderby, asc, limit, offset)
-        rows = self.execute(sql)
+    def _find(self, table, fields, orderby=None, asc=True,
+              limit=None, offset=0):
+        sql = self._dict_to_find_sql(table, fields, orderby, asc,
+                                     limit, offset)
+        self.execute(sql)
         if limit == 1:
             return self.cursor.fetchone()
         else:
             return self.cursor.fetchall()
 
-    def find_one(self, table, fields={}, orderby=None, asc=True, 
-            offset=0):
-        return self._find(table, fields, orderby, asc, limit = 1, 
-            offset = offset)
+    def find_one(self, table, fields={}, orderby=None, asc=True,
+                 offset=0):
+        return self._find(table, fields, orderby, asc, limit=1,
+                          offset=offset)
 
-    def find_many(self, table, fields={}, orderby=None, asc=True, 
-            limit=None, offset=0):
-        return self._find(table, fields, orderby, asc, 
-            limit = limit, offset = offset)
+    def find_many(self, table, fields={}, orderby=None, asc=True,
+                  limit=None, offset=0):
+        return self._find(table, fields, orderby, asc,
+                          limit=limit, offset=offset)
 
     def update(self, table, update, where):
         sql = self._dict_to_update_sql(table, update, where)
@@ -258,8 +262,10 @@ class ABCDatabase:
             if result != fields:
                 self.update(table, fields, where)
 
+
 class DatabaseError(Exception):
     pass
+
 
 class DatabaseWarning(Exception):
     pass

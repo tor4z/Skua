@@ -1,5 +1,6 @@
 from .container import Container
-from .adapter import DatabaseWarning
+from .adapter.database import DatabaseWarning
+
 
 class BigDict(Container):
     KEY = "_key"
@@ -69,11 +70,11 @@ class BigDict(Container):
 
     def items(self):
         offset = 0
-        result = self._adapter.find_one(self._table, {}, offset = offset)
+        result = self._adapter.find_one(self._table, {}, offset=offset)
         while result:
             yield (result[self.KEY], self._loads(result[self.VALUE]))
             offset += 1
-            result = self._adapter.find_one(self._table, {}, offset = offset)
+            result = self._adapter.find_one(self._table, {}, offset=offset)
 
     def get(self, key, default=None):
         try:
@@ -102,4 +103,3 @@ class BigDict(Container):
         for key, value in dic.items():
             if self.get(key) != value:
                 self.__setitem__(key, value)
-

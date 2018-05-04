@@ -1,5 +1,6 @@
 from .container import Container
-from .adapter import DatabaseWarning
+from .adapter.database import DatabaseWarning
+
 
 class BigSet(Container):
     HASH = "_hash"
@@ -24,7 +25,7 @@ class BigSet(Container):
 
     def _find_one_by_hash(self, hash):
         return self._adapter.find_one(self._table, {self.HASH: hash})
-    
+
     def _remove_by_hash(self, hash):
         self._adapter.remove(self._table, {self.HASH: hash})
 
@@ -32,7 +33,7 @@ class BigSet(Container):
         hash = self._get_hash(obj)
         result = self._find_one_by_hash(hash)
         if not result:
-            data = {self.HASH: hash, 
+            data = {self.HASH: hash,
                     self.OBJECT: self._dumps(obj)}
 
             if hasattr(self._adapter, "add_one_binary"):
@@ -52,11 +53,11 @@ class BigSet(Container):
 
     def __iter__(self):
         offset = 0
-        result = self._adapter.find_one(self._table, {}, offset = offset)
+        result = self._adapter.find_one(self._table, {}, offset=offset)
         while result:
             yield self._loads(result.get(self.OBJECT))
             offset += 1
-            result = self._adapter.find_one(self._table, {}, offset = offset)
+            result = self._adapter.find_one(self._table, {}, offset=offset)
 
     def __contains__(self, obj):
         hash = self._get_hash(obj)

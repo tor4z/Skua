@@ -1,6 +1,7 @@
 import unittest
 import random
-from skua.adapter import MySQLDB, MongoDB
+from skua.adapter.mysql import MySQLDB
+from skua.adapter.mongo import MongoDB
 from skua.bigset import BigSet
 
 TEST_DB = "skua_test"

@@ -1,10 +1,13 @@
 import sqlite3
-from .database import (ABCDatabase, 
-    DatabaseError, DatabaseWarning)
+from .database import (ABCDatabase,
+                       DatabaseError,
+                       DatabaseWarning)
+
 
 def results_gen(results):
     for result in results:
         yield dict(result)
+
 
 class SQLiteDB(ABCDatabase):
     blob = "BLOB"
@@ -15,18 +18,19 @@ class SQLiteDB(ABCDatabase):
     def close(self):
         self.cursor.close()
         self.conn.close()
-    
+
     def connect(self, database=None, timeout=5):
         if self._connected:
-            raise DatabaseError("Can not connect twice to a database in a instance.")
+            raise DatabaseError("Can not connect twice to a database \
+                                in a instance.")
         self._database = database or ":memory:"
         self._timeout = timeout
         self._connected = True
 
     def _reconnect(self):
         self._conn = sqlite3.connect(
-            database = self._database,
-            timeout = self._timeout)
+            database=self._database,
+            timeout=self._timeout)
         self._conn.row_factory = sqlite3.Row
 
     @property
@@ -42,15 +46,15 @@ class SQLiteDB(ABCDatabase):
 
     def select_db(self, *args, **kwarsg):
         raise DatabaseWarning(f"Command 'select db' not suport \
-            in {self.__class__.__name__}.")
+                              in {self.__class__.__name__}.")
 
     def create_db(self, *args, **kwargs):
         raise DatabaseWarning(f"Command 'create db' not suport \
-            in {self.__class__.__name__}.")
+                              in {self.__class__.__name__}.")
 
     def _table_exist_sql(self, table):
         return f"SELECT COUNT(*) FROM sqlite_master WHERE type='table' \
-            AND name='{table}'"
+               AND name='{table}'"
 
     def _list_to_insert_many_sql(self, table, fields):
         if not isinstance(fields, list):
@@ -62,7 +66,8 @@ class SQLiteDB(ABCDatabase):
             key_str += f"{key},"
             value_str += f":{key},"
 
-        return f"INSERT INTO {table} ({key_str[:-1]}) VALUES ({value_str[:-1]})"
+        return f"INSERT INTO {table} ({key_str[:-1]}) VALUES \
+               ({value_str[:-1]})"
 
     def _dict_to_insert_sql(self, table, fields):
         if not isinstance(fields, dict):
@@ -74,13 +79,14 @@ class SQLiteDB(ABCDatabase):
             key_str += f"{key},"
             value_str += f":{key},"
 
-        return f"INSERT INTO {table} ({key_str[:-1]}) VALUES ({value_str[:-1]})"
+        return f"INSERT INTO {table} ({key_str[:-1]}) VALUES \
+               ({value_str[:-1]})"
 
-
-    def _find(self, table, fields, orderby=None, asc=True, 
-            limit=None, offset=0):
-        sql = self._dict_to_find_sql(table, fields, orderby, asc, limit, offset)
-        rows = self.execute(sql)
+    def _find(self, table, fields, orderby=None, asc=True,
+              limit=None, offset=0):
+        sql = self._dict_to_find_sql(table, fields, orderby, asc,
+                                     limit, offset)
+        self.execute(sql)
         if limit == 1:
             result = self.cursor.fetchone()
             return dict(result) if result else None

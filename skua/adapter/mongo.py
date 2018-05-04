@@ -1,13 +1,15 @@
 import pymongo
 from urllib.parse import quote_plus
-from .database import (ABCDatabase, 
-    DatabaseError, DatabaseWarning)
+from .database import (ABCDatabase,
+                       DatabaseError,
+                       DatabaseWarning)
+
 
 class MongoDB(ABCDatabase):
     @staticmethod
     def gt(value):
         return {"$gt": value}
-    
+
     @staticmethod
     def ge(value):
         return {"$gte": value}
@@ -100,13 +102,14 @@ class MongoDB(ABCDatabase):
             raise TypeError("Dict requied.")
         if orderby:
             order = pymongo.ASCENDING if asc else pymongo.DESCENDING
-            result = self.db[table].find_one(fields, sort = [(orderby, order)], skip = offset)
+            result = self.db[table].find_one(fields, sort=[(orderby, order)],
+                                             skip=offset)
         else:
-            result = self.db[table].find_one(fields, skip = offset)
+            result = self.db[table].find_one(fields, skip=offset)
         return result
 
-    def find_many(self, table, fields={}, orderby=None, asc=True, 
-            limit=0, offset=0):
+    def find_many(self, table, fields={}, orderby=None, asc=True,
+                  limit=0, offset=0):
         if orderby:
             order = pymongo.ASCENDING if asc else pymongo.DESCENDING
             result = self.db[table].find(fields).sort(orderby, order)\
@@ -125,4 +128,4 @@ class MongoDB(ABCDatabase):
         return self.db[table].find(fields).count()
 
     def add_update(self, table, fields, where):
-        return self.db[table].update_one(where, {"$set": fields}, upsert = True)
+        return self.db[table].update_one(where, {"$set": fields}, upsert=True)

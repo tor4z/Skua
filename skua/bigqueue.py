@@ -1,6 +1,7 @@
 from .container import Container
-from .adapter import DatabaseWarning
+from .adapter.database import DatabaseWarning
 import threading
+
 
 class BigQueue(Container):
     INDEX = "_index"
@@ -28,7 +29,7 @@ class BigQueue(Container):
 
     def qsize(self):
         pass
-    
+
     def empty(self):
         pass
 
@@ -43,6 +44,6 @@ class BigQueue(Container):
 
     def put_nowait(self):
         pass
-    
+
     def get_nowait(self):
         pass
