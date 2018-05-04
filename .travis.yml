@@ -11,8 +11,5 @@ script:
     - pip install tox
     - tox -e coverage,flake8
 
-after_success:
-- codecov
-
 notifications:
   email: false
