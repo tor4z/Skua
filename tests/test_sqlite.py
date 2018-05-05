@@ -149,3 +149,33 @@ class TestSQLite(unittest.TestCase):
 
         sqlite.delete_table(table)
         sqlite.close()
+
+    def test_add_update(self):
+        sqlite = self.new_db()
+        table = "test_add_update"
+        count = 50
+        for _ in range(count):
+            name = random_str(20)
+            age = random.randint(0, 49)
+            user = {"name": name, 
+                    "age": age}
+            sqlite.add_update(table, user)
+
+        for _ in range(count):
+            user = sqlite.find_one(table, {})
+            user["age"] = random.randint(50, 100)
+            sqlite.add_update(table, user, {"name": user["name"]})
+            new_user = sqlite.find_one(table, {"name": user["name"]})
+            self.assertTrue(user["age"] == new_user["age"])
+
+            new_users = sqlite.find_many(table, {"name": user["name"]})
+            self.assertEqual(len(new_users), 1)
+
+            user["age"] = random.randint(100, 120)
+            sqlite.add_update(table, user)
+            new_users = sqlite.find_many(table, {"name": user["name"]})
+            self.assertEqual(len(new_users), 2)
+            sqlite.remove(table, {"name": user["name"]})
+
+        sqlite.delete_table(table)
+        sqlite.close()
