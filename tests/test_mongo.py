@@ -149,7 +149,7 @@ class TestMongoDB(unittest.TestCase):
         for _ in range(count):
             user = mongo.find_one(table, {})
             user["age"] = random.randint(50, 100)
-            mongo.add_update(table, {"name": user["name"]}, user)
+            mongo.add_update(table, user, {"name": user["name"]})
             new_user = mongo.find_one(table, {"name": user["name"]})
             self.assertTrue(user["age"] == new_user["age"])
 
