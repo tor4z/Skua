@@ -19,23 +19,23 @@ class ABCDatabase:
 
     @classmethod
     def eq(cls, value):
-        return "=" + cls.string_ensure(value)
+        return " = " + cls.string_ensure(value)
 
     @classmethod
     def gt(cls, value):
-        return f">'{value}'"
+        return f" > {value}"
 
     @classmethod
     def ge(cls, value):
-        return f">='{value}'"
+        return f" >= {value}"
 
     @classmethod
     def lt(cls, value):
-        return f"<'{value}'"
+        return f" < {value}"
 
     @classmethod
     def le(cls, value):
-        return f"<='{value}'"
+        return f" <= {value}"
 
     def __init__(self):
         self._conn = None
@@ -179,6 +179,7 @@ class ABCDatabase:
         return self._conn
 
     def execute(self, sql, args={}):
+        print(sql)
         rows = self.cursor.execute(sql, args)
         self.conn.commit()
         return rows
