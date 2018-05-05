@@ -80,6 +80,15 @@ class MySQLDB(ABCDatabase):
         return f"INSERT INTO {table} ({key_str[:-1]}) VALUES \
                ({value_str[:-1]})"
 
+    def select_db(self, db, create=True):
+        if not self.db_exist(db) and create:
+            self.create_db(db)
+        self.conn.select_db(db)
+
+    def create_db(self, db):
+        sql = self._create_db_sql(db)
+        return self.execute(sql)
+
     def add_one_binary(self, table, fields):
         sql = self._dict_to_insert_binary_sql(table, fields)
         return self.execute(sql, fields)

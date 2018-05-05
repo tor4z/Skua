@@ -152,11 +152,6 @@ class ABCDatabase:
             fields_str = ""
         return sql + fields_str
 
-    def select_db(self, db, create=True):
-        if not self.db_exist(db) and create:
-            self.create_db(db)
-        self.conn.select_db(db)
-
     @property
     def is_open(self):
         raise NotImplementedError
@@ -192,11 +187,9 @@ class ABCDatabase:
         result = self.cursor.fetchone()
         return result["COUNT(*)"] == 1
 
-    def create_db(self, db):
-        sql = self._create_db_sql(db)
-        return self.execute(sql)
-
     def create_table(self, table, fields):
+        if self.table_exit(table):
+            raise DatabaseWarning(f"Table {table} already exists.")
         sql = self._table_to_sql(table, fields)
         self.execute(sql)
 
