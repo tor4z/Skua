@@ -160,8 +160,6 @@ class TestMongoDB(unittest.TestCase):
             self.assertEqual(len(new_users), 2)
             mongo.remove(table, {"name": user["name"]})
 
-        self.assertEqual(mongo.count(table, {}), count)
-
         mongo.delete_table(table)
         mongo.close()
 
