@@ -14,7 +14,9 @@ def random_str(k):
 
 class TestBigQueueSQLite(unittest.TestCase):
     def get_queue(self, maxsize=0):
-        return BigQueue(maxsize=maxsize)
+        q = BigQueue(maxsize=maxsize)
+        q.clear()
+        return q
 
     def test_put_get(self):
         q = self.get_queue()
@@ -27,7 +29,6 @@ class TestBigQueueSQLite(unittest.TestCase):
         
         for _ in range(count):
             self.assertTrue(q.get(block=False) in lst)
-        q.delete()
 
     def test_qsize(self):
         q = self.get_queue()
@@ -37,7 +38,6 @@ class TestBigQueueSQLite(unittest.TestCase):
             q.put(string)
         
         self.assertEqual(q.qsize(), count)
-        q.delete()
 
     def test_get_timeout(self):
         q = self.get_queue()
@@ -51,42 +51,38 @@ class TestBigQueueSQLite(unittest.TestCase):
         for _ in range(count):
             self.assertTrue(q.get(block=False) in lst)
         
-        with self.assertRaises(TimeoutError):
+        with self.assertRaises(Empty):
             q.get(timeout=1)
-
-        q.delete()
 
     def test_put_timeout(self):
         count = random.randint(30, 50)
         q = self.get_queue(count)
         for k in range(count):
-            string = random_str(k)
-            q.put(string)
+            string = random_str(random.randint(20, 300))
+            q.put_nowait(string)
         
-        with self.assertRaises(TimeoutError):
+        with self.assertRaises(Full):
             string = random_str(k)
             q.put(string, timeout=1)
-
-        q.delete()
 
     def test_put_nowait(self):
         count = random.randint(30, 50)
         q = self.get_queue(count)
         for k in range(count):
-            string = random_str(k)
-            q.put(string)
+            string = random_str(random.randint(10, 200))
+            q.put_nowait(string)
         
         with self.assertRaises(Full):
             string = random_str(k)
             q.put_nowait(string)
 
-        q.delete()
-
     def test_get_nowait(self):
         count = random.randint(30, 50)
         q = self.get_queue()
+        lst = []
         for k in range(count):
             string = random_str(k)
+            lst.append(string)
             q.put(string)
 
         for _ in range(count):
@@ -95,13 +91,13 @@ class TestBigQueueSQLite(unittest.TestCase):
         with self.assertRaises(Empty):
             q.get_nowait()
 
-        q.delete()
-
     def test_join(self):
         count = random.randint(30, 50)
         q = self.get_queue()
+        lst = []
         for k in range(count):
             string = random_str(k)
+            lst.append(string)
             q.put(string)
 
         for _ in range(count):
@@ -110,8 +106,6 @@ class TestBigQueueSQLite(unittest.TestCase):
 
         q.join()
         self.assertTrue(True)
-
-        q.delete()
 
     def test_join_timeout(self):
         count = random.randint(30, 50)
@@ -129,19 +123,21 @@ class TestBigQueueSQLite(unittest.TestCase):
         with self.assertRaises(TimeoutError):
             q.join(timeout=1)
 
-        q.delete()
-
 
 class TestBigQueueMySQL(TestBigQueueSQLite):
     def get_queue(self, maxsize=0):
         mysql = MySQLDB()
         mysql.connect(passwd="")
         mysql.select_db(TEST_DB)
-        return BigQueue(mysql, maxsize=maxsize)
+        q = BigQueue(mysql, maxsize=maxsize)
+        q.clear()
+        return q
 
 
 class TestBigQueueMongo(TestBigQueueSQLite):
     def get_queue(self, maxsize=0):
         mongo = MongoDB()
         mongo.connect(db=TEST_DB)
-        return BigQueue(mongo, maxsize=maxsize)
+        q = BigQueue(mongo, maxsize=maxsize)
+        q.clear()
+        return q
