@@ -1,6 +1,8 @@
 import unittest
 import random
 from skua.adapter.sqlite import SQLiteDB
+from skua.adapter.database import (DatabaseError,
+                                   DatabaseWarning)
 
 TEST_DB = "skua_test"
 _STR = "asbcdefhijklmnopqrstuvwxyz_"
@@ -142,7 +144,7 @@ class TestSQLite(unittest.TestCase):
         for _ in range(count):
             name = random_str(5)
             age = random.randint(0, 10)
-            if qge == 5:
+            if age == 5:
                 eq5 += 1
             users.append({
                 "name": name, 

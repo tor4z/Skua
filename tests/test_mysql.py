@@ -2,7 +2,8 @@ import unittest
 import random
 import pickle
 from skua.adapter.mysql import MySQLDB
-from skua.adapter.database import DatabaseError
+from skua.adapter.database import (DatabaseError,
+                                   DatabaseWarning)
 
 TEST_DB = "skua_test"
 _STR = "asbcdefhijklmnopqrstuvwxyz_"
