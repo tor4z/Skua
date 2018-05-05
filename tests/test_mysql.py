@@ -1,6 +1,8 @@
 import unittest
 import random
+import pickle
 from skua.adapter.mysql import MySQLDB
+from skua.adapter.database import DatabaseError
 
 TEST_DB = "skua_test"
 _STR = "asbcdefhijklmnopqrstuvwxyz_"
@@ -155,3 +157,25 @@ class TestMySQL(unittest.TestCase):
 
         mysql.delete_table(table)
         mysql.close()
+
+    def test_connect_twice(self):
+        mysql = MySQLDB()
+        mysql.connect(passwd="")
+        with self.assertRaises(DatabaseError):
+            mysql.connect(passwd="")
+
+    def test_add_many_binary(self):
+        mysql = self.new_db()
+        table = "test_count"
+        count = 50
+        mysql.create_table(table, {
+            "name": "varchar(255)",
+            "bin" : MySQLDB.blob})
+        users = []
+        for _ in range(count):
+            users.append({
+                "user": random_str(random.randint(1, 250)),
+                "bin": pickle.dumps(random_str(random.randint(1, 250)))})
+
+        mysql.add_many_binary(table, users)    
+        self.assertEqual(mysql.count(table, {}), count)
