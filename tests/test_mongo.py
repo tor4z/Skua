@@ -140,7 +140,7 @@ class TestMongoDB(unittest.TestCase):
         users = []
         for _ in range(count):
             name = random_str(5)
-            age = random.randint(0, 100)
+            age = random.randint(0, 49)
             user = {"name": name, 
                     "age": age}
             users.append(user)
@@ -148,10 +148,10 @@ class TestMongoDB(unittest.TestCase):
 
         for _ in range(count):
             user = mongo.find_one(table, {})
-            user["age"] = random.randint(0, 100)
-            mongo.add_update(table, user)
-            new_users = mongo.find_many(table, {"name": user["name"]})
-            self.assertTrue(user == new_users[0] or user == new_users[1])
+            user["age"] = random.randint(50, 100)
+            mongo.add_update(table, {"name": user["name"]}, user)
+            new_user = mongo.find_one(table, {"name": user["name"]})
+            self.assertTrue(user["age"] == new_user["age"])
 
         self.assertEqual(mongo.count(table, {}), count)
 
