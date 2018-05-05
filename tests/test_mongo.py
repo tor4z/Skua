@@ -1,7 +1,8 @@
 import unittest
 import random
 from skua.adapter.mongo import MongoDB
-from skua.adapter.database import DatabaseWarning
+from skua.adapter.database import DatabaseWarning,
+                                  DatabaseError
 
 TEST_DB = "skua_test"
 _STR = "asbcdefhijklmnopqrstuvwxyz_"
@@ -131,3 +132,127 @@ class TestMongoDB(unittest.TestCase):
 
         mongo.delete_table(table)
         mongo.close()
+
+    def test_add_update(self):
+        mongo = self.new_db()
+        table = "test_add_update"
+        count = 50
+        users = []
+        for _ in range(count):
+            name = random_str(5)
+            age = random.randint(0, 100)
+            user = {"name": name, 
+                    "age": age}
+            users.append(user)
+            mongo.add_update(table, user)
+
+        for _ in range(count):
+            user = mongo.find_one(table, {})
+            user["age"] = random.randint(0, 100)
+            mongo.add_update(table, user)
+            new_user = mongo.find_one(table, {"name": user["name"]})
+            self.assertEqual(user, new_user)
+
+        self.assertEqual(mongo.count(table, {}), count)
+
+        mongo.delete_table(table)
+        mongo.close()
+
+    def test_find_many_order(self):
+        mongo = self.new_db()
+        table = "test_find_many_order"
+        count = 50
+        users = []
+        for _ in range(count):
+            name = random_str(5)
+            age = random.randint(0, 100)
+            user = {"name": name, 
+                    "age": age}
+            users.append(user)
+            mongo.add(table, user)
+
+        users = mongo.find_many(table, {}, orderby="age")
+
+        old_age = 0
+        for user in users:
+            self.assertGreaterEqual(user["age"], old_age)
+            old_age = user["age"]
+
+        mongo.delete_table(table)
+        mongo.close()
+    
+    def test_find_one_order(self):
+        mongo = self.new_db()
+        table = "test_find_one_order"
+        count = 50
+        users = []
+        for _ in range(count):
+            name = random_str(5)
+            age = random.randint(0, 100)
+            user = {"name": name, 
+                    "age": age}
+            users.append(user)
+            mongo.add(table, user)
+
+        old_age = 0
+        for _ in range(count):
+            user = mongo.find_one(table, {}, orderby="age")
+            self.assertGreaterEqual(user["age"], old_age)
+            old_age = user["age"]
+
+        mongo.delete_table(table)
+        mongo.close()
+
+    def test_create_db(self):
+        mongo = MongoDB()
+        mongo.connect()
+        with self.assertRaises(DatabaseWarning):
+            mongo.create_db("some_db")
+        mongo.close()
+
+    def test_is_open(self):
+        mongo = MongoDB()
+        self.assertFalse(mongo.is_open)
+        mongo.connect()
+        self.assertTrue(mongo.is_open)
+        mongo.close()
+
+    def test_connect_twice(self):
+        mongo = MongoDB()
+        mongo.connect()
+        with self.assertRaises(DatabaseError):
+            mongo.connect()
+        mongo.close()
+
+    def test_find_gt_ge_lt_le(self):
+        mongo = self.new_db()
+        table = "test_find_gt_ge_lt_le"
+        count = 200
+        users = []
+        for _ in range(count):
+            name = random_str(5)
+            age = random.randint(0, 100)
+            user = {"name": name, 
+                    "age": age}
+            users.append(user)
+            mongo.add(table, user)
+
+        users_gt_50 = mongo.find_many(table, {"age": MongoDB.gt(50)})
+        for user in users_gt_50:
+            self.assertGreater(user["age"] ,50)
+
+        users_ge_50 = mongo.find_many(table, {"age": MongoDB.ge(50)})
+        for user in users_ge_50:
+            self.assertGreaterEqual(user["age"] ,50)
+
+        users_lt_50 = mongo.find_many(table, {"age": MongoDB.lt(50)})
+        for user in users_lt_50:
+            self.assertLess(user["age"] ,50)
+
+        users_le_50 = mongo.find_many(table, {"age": MongoDB.le(50)})
+        for user in users_le_50:
+            self.assertLessEqual(user["age"] ,50)
+
+        mongo.delete_table(table)
+        mongo.close()
+    
