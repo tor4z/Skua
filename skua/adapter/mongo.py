@@ -6,6 +6,8 @@ from .database import (ABCDatabase,
 
 
 class MongoDB(ABCDatabase):
+    ID = "_id"
+
     @staticmethod
     def gt(value):
         return {"$gt": value}
@@ -129,6 +131,8 @@ class MongoDB(ABCDatabase):
 
     def add_update(self, table, fields, where=None):
         where = where or fields
+        if hasattr(fields, self.ID):
+            del fields[self.ID]
         return self.db[table].update_one(where, {"$set": fields}, upsert=True)
 
     def add(self, table, fields={}):
