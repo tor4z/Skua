@@ -66,8 +66,8 @@ class ABCDatabase:
         offset_str = "" if limit is None else f" LIMIT {limit} OFFSET {offset}"
 
         for key, value in fields.items():
-            fields_str += f" {key} {ABCDatabase.ensure_operator(value)} ,"
-        fields_str = fields_str[:-1] if fields else ""
+            fields_str += f" {key} {ABCDatabase.ensure_operator(value)} AND"
+        fields_str = fields_str[:-3] if fields else ""
 
         if orderby:
             for name in orderby:
@@ -179,7 +179,6 @@ class ABCDatabase:
         return self._conn
 
     def execute(self, sql, args={}):
-        print(sql)
         rows = self.cursor.execute(sql, args)
         self.conn.commit()
         return rows
