@@ -3,6 +3,13 @@ class ABCDatabase:
     blob = "BLOB"
 
     @classmethod
+    def string_ensure(cls, value):
+        if isinstance(value, str):
+            return f'\"{value}\"'
+        else:
+            return f'{value}'
+
+    @classmethod
     def ensure_operator(cls, value):
         if isinstance(value, str):
             if value[:1] in cls.operators or\
@@ -10,24 +17,24 @@ class ABCDatabase:
                     return value
         return cls.eq(value)
 
-    @staticmethod
-    def eq(value):
-        return f"=\"{value}\""
+    @classmethod
+    def eq(cls, value):
+        return "=" + cls.string_ensure(value)
 
-    @staticmethod
-    def gt(value):
+    @classmethod
+    def gt(cls, value):
         return f">'{value}'"
 
-    @staticmethod
-    def ge(value):
+    @classmethod
+    def ge(cls, value):
         return f">='{value}'"
 
-    @staticmethod
-    def lt(value):
+    @classmethod
+    def lt(cls, value):
         return f"<'{value}'"
 
-    @staticmethod
-    def le(value):
+    @classmethod
+    def le(cls, value):
         return f"<='{value}'"
 
     def __init__(self):
