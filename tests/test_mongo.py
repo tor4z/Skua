@@ -169,7 +169,7 @@ class TestMongoDB(unittest.TestCase):
             user = {"name": name, 
                     "age": age}
             users.append(user)
-            mongo.add(table, user)
+            mongo.add_one(table, user)
 
         users = mongo.find_many(table, {}, orderby="age")
 
@@ -192,7 +192,7 @@ class TestMongoDB(unittest.TestCase):
             user = {"name": name, 
                     "age": age}
             users.append(user)
-            mongo.add(table, user)
+            mongo.add_one(table, user)
 
         old_age = 0
         for _ in range(count):
@@ -235,7 +235,7 @@ class TestMongoDB(unittest.TestCase):
             user = {"name": name, 
                     "age": age}
             users.append(user)
-            mongo.add(table, user)
+            mongo.add_one(table, user)
 
         users_gt_50 = mongo.find_many(table, {"age": MongoDB.gt(50)})
         for user in users_gt_50:
