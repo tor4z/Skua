@@ -1,6 +1,6 @@
 import threading
 from queue import Empty, Full
-import time
+from time import time
 from .container import Container
 from .adapter.database import DatabaseWarning
 
@@ -84,7 +84,7 @@ class BigQueue(Container):
 
     def full(self):
         with self.mutex:
-            return 0 < self.qsize() <= self.maxsize
+            return 0 < self.maxsize <= self.qsize()
 
     def task_done(self):
         with self.all_tasks_done:
@@ -95,10 +95,20 @@ class BigQueue(Container):
                 self.all_tasks_done.notify_all()
             self.unfinished_tasks = unfinished
 
-    def join(self):
+    def join(self, timeout=None):
         with self.all_tasks_done:
-            while self.unfinished_tasks:
-                self.all_tasks_done.wait()
+            if timeout is None:
+                while self.unfinished_tasks:
+                    self.all_tasks_done.wait()
+            elif timeout < 0:
+                raise ValueError("'timeout' must be a non-negative number")
+            else:
+                endtime = time() + timeout
+                while self.unfinished_tasks:
+                    remaining = endtime - time()
+                    if remaining < 0.0:
+                        raise TimeoutError("wait task done timeout.")
+                    self.all_tasks_done.wait(remaining)
 
     def put_nowait(self, obj):
         self.put(obj, block=False)
