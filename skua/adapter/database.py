@@ -66,12 +66,12 @@ class ABCDatabase:
         offset_str = "" if limit is None else f" LIMIT {limit} OFFSET {offset}"
 
         for key, value in fields.items():
-            fields_str += f"{key} {ABCDatabase.ensure_operator(value)},"
+            fields_str += f" {key} {ABCDatabase.ensure_operator(value)} ,"
         fields_str = fields_str[:-1] if fields else ""
 
         if orderby:
             for name in orderby:
-                order_str += f"{name},"
+                order_str += f" {name},"
             order_str = order_str[:-1]
             order_str += "ASC" if asc else "DESC"
 
@@ -84,8 +84,8 @@ class ABCDatabase:
         key_str = ""
         value_str = ""
         for key in fields.keys():
-            key_str += f"{key},"
-            value_str += f"%({key})s,"
+            key_str += f" {key},"
+            value_str += f" %({key})s,"
 
         return f"INSERT INTO {table} ({key_str[:-1]}) VALUES \
             ({value_str[:-1]})"
@@ -97,8 +97,8 @@ class ABCDatabase:
         key_str = ""
         value_str = ""
         for key in fields[0].keys():
-            key_str += f"{key},"
-            value_str += f"%({key})s,"
+            key_str += f" {key},"
+            value_str += f" %({key})s,"
 
         return f"INSERT INTO {table} ({key_str[:-1]}) VALUES \
             ({value_str[:-1]})"
