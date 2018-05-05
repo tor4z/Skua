@@ -158,6 +158,7 @@ class TestMongoDB(unittest.TestCase):
             mongo.add_update(table, user)
             new_users = mongo.find_many(table, {"name": user["name"]})
             self.assertEqual(len(new_users), 2)
+            mongo.remove(table, {"name": user["name"]})
 
         self.assertEqual(mongo.count(table, {}), count)
 
