@@ -115,7 +115,7 @@ class ABCDatabase:
         for key, value in where.items():
             where_str += f" {key} {ABCDatabase.ensure_operator(value)} AND"
 
-        return f"UPDATE {table} SET {update_str[:-1]} WHERE {where_str[:-1]}"
+        return f"UPDATE {table} SET {update_str[:-1]} WHERE {where_str[:-3]}"
 
     def _dict_to_delete_sql(self, table, fields=None):
         if not fields:
