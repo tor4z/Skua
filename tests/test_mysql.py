@@ -166,10 +166,10 @@ class TestMySQL(unittest.TestCase):
 
     def test_add_many_binary(self):
         mysql = self.new_db()
-        table = "test_count"
+        table = "test_add_many_binary"
         count = 50
         mysql.create_table(table, {
-            "name": "varchar(255)",
+            "user": "varchar(255)",
             "bin" : MySQLDB.blob})
         users = []
         for _ in range(count):
@@ -179,3 +179,6 @@ class TestMySQL(unittest.TestCase):
 
         mysql.add_many_binary(table, users)    
         self.assertEqual(mysql.count(table, {}), count)
+
+        mysql.delete_table(table)
+        mysql.close()
