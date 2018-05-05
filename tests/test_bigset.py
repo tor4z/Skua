@@ -92,7 +92,7 @@ class TestBigSetSQLite(unittest.TestCase):
 
         for _ in range(count):
             string =  bs.pop()
-            self.assertEqual(string in strings)
+            self.assertTrue(string in strings)
 
         self.assertEqual(len(bs), 0)
         bs.delete()
