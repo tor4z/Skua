@@ -79,6 +79,24 @@ class TestBigSetSQLite(unittest.TestCase):
         
         bs.delete()
 
+    def test_pop(self):
+        bs = self.get_bs()
+        count = random.randint(30, 50)
+        strings = []
+        for _ in range(count):
+            string = random_str(random.randint(1, 9999))
+            strings.append(string)
+            bs.add(string)
+            bs.add(string)
+        self.assertEqual(len(bs), count)
+
+        for _ in range(count):
+            string =  bs.pop()
+            self.assertEqual(string in strings)
+
+        self.assertEqual(len(bs), 0)
+        bs.delete()
+
 class TestBigSetMySQL(TestBigSetSQLite):
     def get_bd(self):
         mysql = MySQLDB()
