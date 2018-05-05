@@ -1,8 +1,8 @@
 import unittest
 import random
 from skua.adapter.mongo import MongoDB
-from skua.adapter.database import DatabaseWarning,
-                                  DatabaseError
+from skua.adapter.database import (DatabaseWarning,
+                                   DatabaseError)
 
 TEST_DB = "skua_test"
 _STR = "asbcdefhijklmnopqrstuvwxyz_"
@@ -239,20 +239,44 @@ class TestMongoDB(unittest.TestCase):
 
         users_gt_50 = mongo.find_many(table, {"age": MongoDB.gt(50)})
         for user in users_gt_50:
-            self.assertGreater(user["age"] ,50)
+            self.assertGreater(user["age"], 50)
 
         users_ge_50 = mongo.find_many(table, {"age": MongoDB.ge(50)})
         for user in users_ge_50:
-            self.assertGreaterEqual(user["age"] ,50)
+            self.assertGreaterEqual(user["age"], 50)
 
         users_lt_50 = mongo.find_many(table, {"age": MongoDB.lt(50)})
         for user in users_lt_50:
-            self.assertLess(user["age"] ,50)
+            self.assertLess(user["age"], 50)
 
         users_le_50 = mongo.find_many(table, {"age": MongoDB.le(50)})
         for user in users_le_50:
-            self.assertLessEqual(user["age"] ,50)
+            self.assertLessEqual(user["age"], 50)
 
         mongo.delete_table(table)
         mongo.close()
     
+    def test_type_checker(self):
+        mongo = self.new_db()
+        table = "test_find_one_order"
+        count = 5
+        users = []
+        for _ in range(count):
+            name = random_str(5)
+            age = random.randint(0, 100)
+            user = [("name", name),
+                    ("age", age)]
+            users.append(user)
+            with self.assertRaises(TypeError):
+                mongo.add(table, user)
+            
+            with self.assertRaises(TypeError):
+                mongo.add_many(table, {})
+
+        old_age = 0
+        for _ in range(count):
+            with self.assertRaises(TypeError):
+                user = mongo.find_one(table, [], orderby="age")
+
+        mongo.delete_table(table)
+        mongo.close()
