@@ -36,7 +36,7 @@ class BigQueue(Container):
                 raise ValueError("'timeout' must be a non-negative number")
             else:
                 endtime = time() + timeout
-                while not self._qsize():
+                while not self.qsize():
                     remaining = endtime - time()
                     if remaining <= 0.0:
                         raise Empty
@@ -53,16 +53,16 @@ class BigQueue(Container):
         with self.not_full:
             if self.maxsize > 0:
                 if not block:
-                    if self._qsize() >= self.maxsize:
+                    if self.qsize() >= self.maxsize:
                         raise Full
                 elif timeout is None:
-                    while self._qsize() >= self.maxsize:
+                    while self.qsize() >= self.maxsize:
                         self.not_full.wait()
                 elif timeout < 0:
                     raise ValueError("'timeout' must be a non-negative number")
                 else:
                     endtime = time() + timeout
-                    while self._qsize() >= self.maxsize:
+                    while self.qsize() >= self.maxsize:
                         remaining = endtime - time()
                         if remaining <= 0.0:
                             raise Full

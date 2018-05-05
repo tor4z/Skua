@@ -116,8 +116,10 @@ class TestBigQueueSQLite(unittest.TestCase):
     def test_join_timeout(self):
         count = random.randint(30, 50)
         q = self.get_queue()
+        lst = []
         for k in range(count):
             string = random_str(k)
+            lst.append(string)
             q.put(string)
 
         for _ in range(count-1):
