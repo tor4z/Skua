@@ -72,7 +72,7 @@ class ABCDatabase:
             for name in orderby:
                 order_str += f" {name},"
             order_str = order_str[:-1]
-            order_str += "ASC" if asc else "DESC"
+            order_str += " ASC " if asc else " DESC "
         else:
             order_str = ""
 
