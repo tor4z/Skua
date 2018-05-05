@@ -72,8 +72,11 @@ class BigQueue(Container):
             self.not_empty.notify()
 
     def _put(self, obj):
-        self._adapter.add_one(self._table, {
-            self.OBJECT: self._dumps(obj)})
+        data = {self.OBJECT: self._dumps(obj)}
+        if hasattr(self._adapter, "add_one_binary"):
+            self._adapter.add_one_binary(self._table, data)
+        else:
+            self._adapter.add_one(self._table, data)
 
     def qsize(self):
         return self.__len__()
