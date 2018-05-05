@@ -60,22 +60,23 @@ class ABCDatabase:
         if not isinstance(offset, int):
             raise TypeError("Offset should be a number.")
 
-        sql = f"SELECT * FROM {table} "
-        order_str = " ORDER BY "
-        fields_str = " WHERE "
         offset_str = "" if limit is None else f" LIMIT {limit} OFFSET {offset}"
 
+        fields_str = " WHERE "
         for key, value in fields.items():
             fields_str += f" {key} {ABCDatabase.ensure_operator(value)} AND"
         fields_str = fields_str[:-3] if fields else ""
 
         if orderby:
+            order_str = " ORDER BY "
             for name in orderby:
                 order_str += f" {name},"
             order_str = order_str[:-1]
             order_str += "ASC" if asc else "DESC"
+        else:
+            order_str = ""
 
-        return sql + fields_str + order_str + offset_str
+        return f"SELECT * FROM {table} " + fields_str + order_str + offset_str
 
     def _dict_to_insert_sql(self, table, fields):
         if not isinstance(fields, dict):
