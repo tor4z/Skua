@@ -187,6 +187,9 @@ class TestMySQL(unittest.TestCase):
         mysql = self.new_db()
         table = "test_add_update"
         count = 50
+        mysql.create_table(table, {
+            "name": "varchar(255)",
+            "age" : "int"})
         for _ in range(count):
             name = random_str(20)
             age = random.randint(0, 49)
