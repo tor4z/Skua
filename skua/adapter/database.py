@@ -113,7 +113,7 @@ class ABCDatabase:
             update_str += f"{key}='{value}',"
 
         for key, value in where.items():
-            where_str += f"{key} {ABCDatabase.ensure_operator(value)},"
+            where_str += f" {key} {ABCDatabase.ensure_operator(value)} AND"
 
         return f"UPDATE {table} SET {update_str[:-1]} WHERE {where_str[:-1]}"
 
@@ -123,8 +123,8 @@ class ABCDatabase:
 
         sql = f"DELETE FROM {table} WHERE "
         for key, value in fields.items():
-            sql += f"{key} {ABCDatabase.ensure_operator(value)},"
-        return sql[:-1]
+            sql += f" {key} {ABCDatabase.ensure_operator(value)} AND"
+        return sql[:-3]
 
     def _table_to_sql(self, table, fields):
         field_str = "id MEDIUMINT NOT NULL AUTO_INCREMENT PRIMARY KEY,"
@@ -153,8 +153,8 @@ class ABCDatabase:
         if fields:
             fields_str = "WHERE "
             for key, value in fields.items():
-                fields_str += f"{key} {self.ensure_operator(value)},"
-            fields_str = fields_str[:-1]
+                fields_str += f" {key} {self.ensure_operator(value)} AND"
+            fields_str = fields_str[:-3]
         else:
             fields_str = ""
         return sql + fields_str
