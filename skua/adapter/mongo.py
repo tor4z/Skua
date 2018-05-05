@@ -127,5 +127,9 @@ class MongoDB(ABCDatabase):
     def count(self, table, fields):
         return self.db[table].find(fields).count()
 
-    def add_update(self, table, fields, where):
+    def add_update(self, table, fields, where=None):
+        where = where or fields
         return self.db[table].update_one(where, {"$set": fields}, upsert=True)
+
+    def add(self, table, fields={}):
+        return self.add_one(table, fields)
