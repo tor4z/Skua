@@ -131,7 +131,7 @@ class MongoDB(ABCDatabase):
 
     def add_update(self, table, fields, where=None):
         where = where or fields
-        if hasattr(fields, self.ID):
+        if self.ID in fields:
             del fields[self.ID]
         return self.db[table].update_one(where, {"$set": fields}, upsert=True)
 
