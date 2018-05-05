@@ -247,7 +247,8 @@ class ABCDatabase:
         result = self.cursor.fetchone()
         return result["COUNT(*)"]
 
-    def add_update(self, table, fields, where):
+    def add_update(self, table, fields, where=None):
+        where = where or fields
         result = self.find_one(table, where)
         if not result:
             self.add_one(table, fields)
