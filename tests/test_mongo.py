@@ -151,7 +151,7 @@ class TestMongoDB(unittest.TestCase):
             user["age"] = random.randint(0, 100)
             mongo.add_update(table, user)
             new_users = mongo.find_many(table, {"name": user["name"]})
-            self.assertTrue(user == new_user[0] or user == new_users[1])
+            self.assertTrue(user == new_users[0] or user == new_users[1])
 
         self.assertEqual(mongo.count(table, {}), count)
 
