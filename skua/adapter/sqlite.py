@@ -11,6 +11,7 @@ def results_gen(results):
 
 class SQLiteDB(ABCDatabase):
     blob = "BLOB"
+    ID = "id"
 
     def __init__(self):
         super().__init__()

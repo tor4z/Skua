@@ -258,6 +258,8 @@ class ABCDatabase:
         where = where or fields
         result = self.find_one(table, where)
         if not result:
+            if self.ID in fields:
+                del fields[self.ID]
             self.add_one(table, fields)
         else:
             if result != fields:

@@ -4,6 +4,7 @@ from .database import ABCDatabase, DatabaseError
 
 class MySQLDB(ABCDatabase):
     blob = "BLOB"
+    ID = "id"
 
     def __init__(self):
         super().__init__()
