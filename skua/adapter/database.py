@@ -61,8 +61,8 @@ class ABCDatabase:
             raise TypeError("Offset should be a number.")
 
         sql = f"SELECT * FROM {table} "
-        order_str = ""
-        fields_str = "WHERE "
+        order_str = " ORDER BY "
+        fields_str = " WHERE "
         offset_str = "" if limit is None else f" LIMIT {limit} OFFSET {offset}"
 
         for key, value in fields.items():
@@ -213,6 +213,9 @@ class ABCDatabase:
     def add_one(self, table, fields):
         sql = self._dict_to_insert_sql(table, fields)
         return self.execute(sql, fields)
+
+    def add(self, table, fields):
+        return self.add_one(table, fields)
 
     def add_many(self, table, fields):
         if not isinstance(fields, list):
