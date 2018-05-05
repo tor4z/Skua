@@ -137,13 +137,11 @@ class TestMongoDB(unittest.TestCase):
         mongo = self.new_db()
         table = "test_add_update"
         count = 50
-        users = []
         for _ in range(count):
-            name = random_str(5)
+            name = random_str(20)
             age = random.randint(0, 49)
             user = {"name": name, 
                     "age": age}
-            users.append(user)
             mongo.add_update(table, user)
 
         for _ in range(count):
