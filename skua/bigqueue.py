@@ -6,14 +6,15 @@ from .adapter.database import DatabaseWarning
 
 
 class BigQueue(Container):
-    INDEX = "_index"
+    HASH = "_hash"
     OBJECT = "_object"
 
     def __init__(self, adapter=None, name=None, maxsize=0):
         super().__init__(adapter, name)
         try:
             self._adapter.create_table(self._table, {
-                self.OBJECT: self._adapter.blob})
+                self.OBJECT: self._adapter.blob,
+                self.HASH: "VARCHAR(50)"})
         except DatabaseWarning:
             pass
 
@@ -47,6 +48,7 @@ class BigQueue(Container):
 
     def _get(self):
         result = self._adapter.find_one(self._table, {})
+        self._adapter.remove(self._table, {self.HASH: result.get(self.HASH)})
         return self._loads(result.get(self.OBJECT))
 
     def put(self, obj, block=True, timeout=None):
@@ -72,7 +74,9 @@ class BigQueue(Container):
             self.not_empty.notify()
 
     def _put(self, obj):
-        data = {self.OBJECT: self._dumps(obj)}
+        binary_obj = self._dumps(obj)
+        data = {self.OBJECT: binary_obj,
+                self.HASH:   str(hash(binary_obj))}
         if hasattr(self._adapter, "add_one_binary"):
             self._adapter.add_one_binary(self._table, data)
         else:
