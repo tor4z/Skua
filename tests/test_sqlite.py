@@ -132,20 +132,24 @@ class TestSQLite(unittest.TestCase):
     def test_count(self):
         sqlite = self.new_db()
         table = "test_count"
-        count = 50
+        count = 100
         sqlite.create_table(table, {
             "name": "varchar(255)",
             "age" : "int"})
         
         users = []
+        eq5 = 0
         for _ in range(count):
             name = random_str(5)
-            age = random.randint(0, 100)
+            age = random.randint(0, 10)
+            if qge == 5:
+                eq5 += 1
             users.append({
                 "name": name, 
                 "age": age})
         sqlite.add_many(table, users)
         self.assertEqual(sqlite.count(table, {}), count)
+        self.assertEqual(sqlite.count(table, {"age": 5}), eq5)
 
         sqlite.delete_table(table)
         sqlite.close()
@@ -182,3 +186,118 @@ class TestSQLite(unittest.TestCase):
 
         sqlite.delete_table(table)
         sqlite.close()
+
+    def test_find_gt_ge_lt_le(self):
+        sqlite = self.new_db()
+        table = "test_find_gt_ge_lt_le"
+        count = 200
+        sqlite.create_table(table, {
+            "name": "varchar(255)",
+            "age" : "int"})
+        users = []
+        for _ in range(count):
+            name = random_str(5)
+            age = random.randint(0, 100)
+            user = {"name": name, 
+                    "age": age}
+            users.append(user)
+            sqlite.add_one(table, user)
+
+        users_gt_50 = sqlite.find_many(table, {"age": SQLiteDB.gt(50)})
+        for user in users_gt_50:
+            self.assertGreater(user["age"], 50)
+
+        users_ge_50 = sqlite.find_many(table, {"age": SQLiteDB.ge(50)})
+        for user in users_ge_50:
+            self.assertGreaterEqual(user["age"], 50)
+
+        users_lt_50 = sqlite.find_many(table, {"age": SQLiteDB.lt(50)})
+        for user in users_lt_50:
+            self.assertLess(user["age"], 50)
+
+        users_le_50 = sqlite.find_many(table, {"age": SQLiteDB.le(50)})
+        for user in users_le_50:
+            self.assertLessEqual(user["age"], 50)
+
+        sqlite.delete_table(table)
+        sqlite.close()
+
+    def test_type_checker(self):
+        sqlite = self.new_db()
+        table = "test_find_one_order"
+        count = 5
+        sqlite.create_table(table, {
+            "name": "varchar(255)",
+            "age" : "int"})
+        users = []
+        for _ in range(count):
+            name = random_str(5)
+            age = random.randint(0, 100)
+            user = [("name", name),
+                    ("age", age)]
+            users.append(user)
+            with self.assertRaises(TypeError):
+                sqlite.add(table, user)
+            
+            with self.assertRaises(TypeError):
+                sqlite.add_many(table, {})
+
+    def test_connect_twice(self):
+        sqlite = SQLiteDB()
+        sqlite.connect()
+        with self.assertRaises(DatabaseError):
+            sqlite.connect()
+        sqlite.close()
+
+    def test_find_many_order(self):
+        sqlite = self.new_db()
+        table = "test_find_many_order"
+        count = 50
+        sqlite.create_table(table, {
+            "name": "varchar(255)",
+            "age" : "int"})
+        users = []
+        for _ in range(count):
+            name = random_str(5)
+            age = random.randint(0, 100)
+            user = {"name": name, 
+                    "age": age}
+            users.append(user)
+            sqlite.add_one(table, user)
+
+        users = sqlite.find_many(table, {}, orderby="age")
+
+        old_age = 0
+        for user in users:
+            self.assertGreaterEqual(user["age"], old_age)
+            old_age = user["age"]
+
+        sqlite.delete_table(table)
+        sqlite.close()
+    
+    def test_find_one_order(self):
+        sqlite = self.new_db()
+        table = "test_find_one_order"
+        count = 50
+        sqlite.create_table(table, {
+            "name": "varchar(255)",
+            "age" : "int"})
+
+        users = []
+        for _ in range(count):
+            name = random_str(5)
+            age = random.randint(0, 100)
+            user = {"name": name, 
+                    "age": age}
+            users.append(user)
+            sqlite.add_one(table, user)
+
+        old_age = 0
+        for _ in range(count):
+            user = sqlite.find_one(table, {}, orderby="age")
+            self.assertGreaterEqual(user["age"], old_age)
+            old_age = user["age"]
+
+        sqlite.delete_table(table)
+        sqlite.close()
+
