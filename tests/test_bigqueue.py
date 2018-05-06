@@ -138,7 +138,7 @@ class TestBigQueueSQLite(unittest.TestCase):
         with self.assertRaises(TimeoutError):
             q.join(timeout=1)
 
-    def get_priority_queue(self, maxsize=maxsize):
+    def get_priority_queue(self, maxsize=0):
         q = BigPriorityQueue(maxsize=maxsize)
         q.clear()
         return q
@@ -187,7 +187,7 @@ class TestBigQueueMySQL(TestBigQueueSQLite):
         q.clear()
         return q
 
-    def get_priority_queue(self, maxsize=maxsize):
+    def get_priority_queue(self, maxsize=0):
         mysql = MySQLDB()
         mysql.connect(passwd="")
         mysql.select_db(TEST_DB)
@@ -204,7 +204,7 @@ class TestBigQueueMongo(TestBigQueueSQLite):
         q.clear()
         return q
 
-    def get_priority_queue(self, maxsize=maxsize):
+    def get_priority_queue(self, maxsize=0):
         mongo = MongoDB()
         mongo.connect(db=TEST_DB)
         q = BigPriorityQueue(mongo, maxsize=maxsize)
