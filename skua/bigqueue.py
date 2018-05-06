@@ -134,7 +134,7 @@ class BigPriorityQueue(BigQueue):
             raise TypeError("no priority attribute.")
 
         binary_obj = self._dumps(obj)
-        priority = obj.priority() if callable(obj.priority) else 
+        priority = obj.priority() if callable(obj.priority) else\
                                      obj.priority
         data = {self.OBJECT: binary_obj,
                 self.PRIORITY: priority,
