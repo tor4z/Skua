@@ -153,7 +153,7 @@ class BigPriorityQueue(BigQueue):
         try:
             self._adapter.create_table(self._table, {
                 self.OBJECT: self._adapter.blob,
-                self.PRIORITY: "INT"
+                self.PRIORITY: "INT",
                 self.HASH: "VARCHAR(50)"})
         except DatabaseWarning:
             pass
