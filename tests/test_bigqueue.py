@@ -187,7 +187,7 @@ class TestBigQueueSQLite(unittest.TestCase):
 
         self.assertTrue(q.empty())
         
-        with self.assertRaises(TypeError):
+        with self.assertRaises(ValueError):
             q.get(timeout=-1)
 
         with self.assertRaises(ValueError):
@@ -206,11 +206,10 @@ class TestBigQueueSQLite(unittest.TestCase):
         for _ in range(5):
             t = threading.Thread(target=consumer, args=(q,))
             t.start()
-            threads.append(t)
+            consumer_threads.append(t)
 
         for k in range(count):
             obj = PriorityF(random_str(k))
-            lst.append(obj)
             q.put(obj)
 
         for t in consumer_threads:
@@ -224,11 +223,11 @@ class TestBigQueueSQLite(unittest.TestCase):
             obj = PriorityF(random_str(k))
             q.put(obj)
 
-        consumer_threads = []
+        producer_threads = []
         for _ in range(count * 2):
             t = threading.Thread(target=producer, args=(q,))
             t.start()
-            threads.append(t)
+            producer_threads.append(t)
 
         while not q.empty():
             obj = e.get()
