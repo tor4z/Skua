@@ -31,6 +31,18 @@ class SQLiteDB(ABCDatabase):
         self._connected = True
 
     def _reconnect(self):
+        # Using SQLite In Multi-Threaded Applications 
+        # Serialized. In serialized mode, SQLite can be safely used by
+        # multiple threads with no restriction.
+        # http://www.sqlite.org/threadsafe.html
+
+        # By default, check_same_thread is True and only the creating
+        # thread may use the connection. If set False, the returned
+        # connection may be shared across multiple threads. When using
+        # multiple threads with the same connection writing operations
+        # should be serialized by the user to avoid data corruption.
+        # https://docs.python.org/3/library/sqlite3.html#sqlite3.connect
+
         self._conn = sqlite3.connect(
             database=self._database,
             timeout=self._timeout,
