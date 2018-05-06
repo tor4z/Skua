@@ -1,5 +1,6 @@
 import unittest
 import random
+import threading
 from queue import Full, Empty
 from skua.bigqueue import BigQueue, BigPriorityQueue
 from skua.adapter.mysql import MySQLDB
@@ -176,6 +177,62 @@ class TestBigQueueSQLite(unittest.TestCase):
                 self.assertLessEqual(old.priority(), obj.priority())
             old = obj
 
+    def test_type_checker(self):
+        count = random.randint(5, 10)
+        q = self.get_priority_queue(count)
+        for k in range(count):
+            obj = random_str(k)
+            with self.assertRaises(TypeError):
+                q.put(obj)
+
+        self.assertTrue(q.empty())
+        
+        with self.assertRaises(TypeError):
+            q.get(timeout=-1)
+
+        with self.assertRaises(ValueError):
+            q.join(-1)
+
+    def test_multi_thread_get(self):
+        count = 20
+        q = self.get_priority_queue(maxsize=count)
+
+        def consumer(q):
+            obj = q.get()
+            self.assertIsNotNone(obj)
+            q.task_done()
+
+        consumer_threads = []
+        for _ in range(5):
+            t = threading.Thread(target=consumer, args=(q,))
+            t.start()
+            threads.append(t)
+
+        for k in range(count):
+            obj = PriorityF(random_str(k))
+            lst.append(obj)
+            q.put(obj)
+
+        for t in consumer_threads:
+            t.join()
+
+    def test_multi_thread_put():
+        count = 20
+        q = self.get_priority_queue(maxsize=count)
+
+        def producer(q):
+            obj = PriorityF(random_str(k))
+            q.put(obj)
+
+        consumer_threads = []
+        for _ in range(count * 2):
+            t = threading.Thread(target=producer, args=(q,))
+            t.start()
+            threads.append(t)
+
+        while not q.empty():
+            obj = e.get()
+            self.assertIsNotNone(obj)
 
 class TestBigQueueMySQL(TestBigQueueSQLite):
     def get_queue(self, maxsize=0):
