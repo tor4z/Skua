@@ -155,7 +155,6 @@ class TestBigQueueSQLite(unittest.TestCase):
         old = None
         for _ in range(count):
             obj = q.get(block=False)
-            self.assertTrue(obj in lst)
             if old:
                 self.assertLessEqual(old.priority, obj.priority)
             old = obj
@@ -172,7 +171,6 @@ class TestBigQueueSQLite(unittest.TestCase):
         old = None
         for _ in range(count):
             obj = q.get(block=False)
-            self.assertTrue(obj in lst)
             if old:
                 self.assertLessEqual(old.priority(), obj.priority())
             old = obj
