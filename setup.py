@@ -9,7 +9,7 @@ AUTHOR       = "tor4z"
 AUTHOR_EMAIL = "vwenjie@hotmail.com"
 URL          = "https://github.com/tor4z/Skua"
 LICENSE      = "MIT License"
-VERSION      = 0.01
+VERSION      = 0.1
 INSTALL_REQUIRES = ["pymongo", "PyMySQL"]
 
 def test_suite():
