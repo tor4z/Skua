@@ -135,7 +135,7 @@ class BigPriorityQueue(BigQueue):
 
         binary_obj = self._dumps(obj)
         priority = obj.priority() if callable(obj.priority) else\
-                                     obj.priority
+                   obj.priority
         data = {self.OBJECT: binary_obj,
                 self.PRIORITY: priority,
                 self.HASH: str(hash(binary_obj))}
