@@ -105,9 +105,12 @@ class TestBigSetSQLite(unittest.TestCase):
             def __hash__(self):
                 return None
 
+        class TestNoHash:
+            pass
+
         for _ in range(count):
             with self.assertRaises(TypeError):
-                bs.add(random.randint(0, 100))
+                bs.add(TestNoHash())
             with self.assertRaises(TypeError):
                 bs.add(Test())
 
