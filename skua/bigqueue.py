@@ -11,19 +11,21 @@ class BigQueue(Container):
 
     def __init__(self, adapter=None, name=None, maxsize=0):
         super().__init__(adapter, name)
-        try:
-            self._adapter.create_table(self._table, {
-                self.OBJECT: self._adapter.blob,
-                self.HASH: "VARCHAR(50)"})
-        except DatabaseWarning:
-            pass
-
         self.mutex = threading.Lock()
         self.not_empty = threading.Condition(self.mutex)
         self.not_full = threading.Condition(self.mutex)
         self.all_tasks_done = threading.Condition(self.mutex)
         self.unfinished_tasks = 0
         self.maxsize = maxsize
+        self._init_database()
+
+    def _init_database(self):
+        try:
+            self._adapter.create_table(self._table, {
+                self.OBJECT: self._adapter.blob,
+                self.HASH: "VARCHAR(50)"})
+        except DatabaseWarning:
+            pass
 
     def get(self, block=True, timeout=None):
         with self.not_empty:
@@ -122,3 +124,36 @@ class BigQueue(Container):
 
     def get_nowait(self):
         return self.get(block=False)
+
+
+class BigPriorityQueue(BigQueue):
+    PRIORITY = "_priority"
+
+    def _put(self, obj):
+        if not hasattr(obj, "priority"):
+            raise TypeError("no priority attribute.")
+
+        binary_obj = self._dumps(obj)
+        priority = obj.priority() if callable(obj.priority) else 
+                                     obj.priority
+        data = {self.OBJECT: binary_obj,
+                self.PRIORITY: priority,
+                self.HASH: str(hash(binary_obj))}
+        if hasattr(self._adapter, "add_one_binary"):
+            self._adapter.add_one_binary(self._table, data)
+        else:
+            self._adapter.add_one(self._table, data)
+
+    def _get(self):
+        result = self._adapter.find_one(self._table, {}, orderby=self.PRIORITY)
+        self._adapter.remove(self._table, {self.HASH: result.get(self.HASH)})
+        return self._loads(result.get(self.OBJECT))
+
+    def _init_database(self):
+        try:
+            self._adapter.create_table(self._table, {
+                self.OBJECT: self._adapter.blob,
+                self.PRIORITY: "INT"
+                self.HASH: "VARCHAR(50)"})
+        except DatabaseWarning:
+            pass

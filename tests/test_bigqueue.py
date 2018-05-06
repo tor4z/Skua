@@ -1,7 +1,7 @@
 import unittest
 import random
 from queue import Full, Empty
-from skua.bigqueue import BigQueue
+from skua.bigqueue import BigQueue, BigPriorityQueue
 from skua.adapter.mysql import MySQLDB
 from skua.adapter.mongo import MongoDB
 
@@ -10,6 +10,21 @@ _STR = "asbcdefhijklmnopqrstuvwxyz_"
 
 def random_str(k):
     return "".join(random.choices(_STR, k=5))
+
+class PriorityV:
+
+    def __init__(self, data):
+        self.data = data
+        self.Priority = random.randint(0, 20)
+
+
+class PriorityF:
+
+    def __init__(self, data):
+        self.data = data
+
+    def Priority(self):
+        return random.randint(0, 20)
 
 
 class TestBigQueueSQLite(unittest.TestCase):
@@ -122,6 +137,45 @@ class TestBigQueueSQLite(unittest.TestCase):
 
         with self.assertRaises(TimeoutError):
             q.join(timeout=1)
+
+    def get_priority_queue(self, maxsize=maxsize):
+        q = BigPriorityQueue(maxsize=maxsize)
+        q.clear()
+        return q
+
+    def test_priority_put_get_val(self):
+        q = self.get_priority_queue()
+        count = random.randint(30, 50)
+        lst = []
+        for k in range(count):
+            obj = PriorityV(random_str(k))
+            lst.append(obj)
+            q.put(obj)
+        
+        old = None
+        for _ in range(count):
+            obj = q.get(block=False)
+            self.assertTrue(obj in lst)
+            if old:
+                self.assertLessEqual(old.priority, obj.priority)
+            old = obj
+
+    def test_priority_put_get_func(self):
+        q = self.get_priority_queue()
+        count = random.randint(30, 50)
+        lst = []
+        for k in range(count):
+            obj = PriorityV(random_str(k))
+            lst.append(obj)
+            q.put(obj)
+        
+        old = None
+        for _ in range(count):
+            obj = q.get(block=False)
+            self.assertTrue(obj in lst)
+            if old:
+                self.assertLessEqual(old.priority(), obj.priority())
+            old = obj
 
 
 class TestBigQueueMySQL(TestBigQueueSQLite):
