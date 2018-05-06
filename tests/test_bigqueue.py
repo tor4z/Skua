@@ -187,11 +187,26 @@ class TestBigQueueMySQL(TestBigQueueSQLite):
         q.clear()
         return q
 
+    def get_priority_queue(self, maxsize=maxsize):
+        mysql = MySQLDB()
+        mysql.connect(passwd="")
+        mysql.select_db(TEST_DB)
+        q = BigPriorityQueue(mysql, maxsize=maxsize)
+        q.clear()
+        return q
+
 
 class TestBigQueueMongo(TestBigQueueSQLite):
     def get_queue(self, maxsize=0):
         mongo = MongoDB()
         mongo.connect(db=TEST_DB)
         q = BigQueue(mongo, maxsize=maxsize)
+        q.clear()
+        return q
+
+    def get_priority_queue(self, maxsize=maxsize):
+        mongo = MongoDB()
+        mongo.connect(db=TEST_DB)
+        q = BigPriorityQueue(mongo, maxsize=maxsize)
         q.clear()
         return q
