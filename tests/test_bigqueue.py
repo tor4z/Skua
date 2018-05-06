@@ -231,7 +231,7 @@ class TestBigQueueSQLite(unittest.TestCase):
             producer_threads.append(t)
 
         while not q.empty():
-            obj = e.get()
+            obj = q.get()
             self.assertIsNotNone(obj)
 
 class TestBigQueueMySQL(TestBigQueueSQLite):
