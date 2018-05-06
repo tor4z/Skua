@@ -1,4 +1,5 @@
 import sqlite3
+import threading
 from .database import (ABCDatabase,
                        DatabaseError,
                        DatabaseWarning)
@@ -15,6 +16,7 @@ class SQLiteDB(ABCDatabase):
 
     def __init__(self):
         super().__init__()
+        self._connects = {}
 
     def close(self):
         self.cursor.close()
@@ -28,11 +30,25 @@ class SQLiteDB(ABCDatabase):
         self._timeout = timeout
         self._connected = True
 
-    def _reconnect(self):
-        self._conn = sqlite3.connect(
+    def new_connection(self):
+        conn = sqlite3.connect(
             database=self._database,
             timeout=self._timeout)
-        self._conn.row_factory = sqlite3.Row
+        conn.row_factory = sqlite3.Row
+        return conn
+
+    @property
+    def conn(self):
+        if not self._connected:
+            raise DatabaseError("Databse not connected.")
+
+        thread_id = threading.get_ident()
+        conn = self._connects.get(thread_id, None)
+        if conn is None:
+            new_conn = self.new_connection()
+            self._connects[thread_id] = new_conn
+            conn = new_conn
+        return conn
 
     @property
     def is_open(self):
