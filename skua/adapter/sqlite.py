@@ -16,7 +16,6 @@ class SQLiteDB(ABCDatabase):
 
     def __init__(self):
         super().__init__()
-        self._connects = {}
         self._cursors = {}
 
     def close(self):
@@ -52,12 +51,9 @@ class SQLiteDB(ABCDatabase):
         if not self._connected:
             raise DatabaseError("Databse not connected.")
 
-        thread_id = threading.get_ident()
-        conn = self._connects.get(thread_id, None)
-        if conn is None:
-            conn = self.new_connection()
-            self._connects[thread_id] = conn
-        return conn
+        if self._conn is None:
+            self._conn = self.new_connection()
+        return self._conn
 
     @property
     def is_open(self):
