@@ -62,8 +62,11 @@ class MySQLDB(ABCDatabase):
         key_str = ""
         value_str = ""
         for key in fields.keys():
-            key_str += f"{key},"
-            value_str += f"_binary %({key})s,"
+            key_str += f" {key},"
+            if isinstance(fields[key], bytes):
+                value_str += f" _binary %({key})s,"
+            else:
+                value_str += f" %({key})s,"
 
         return f"INSERT INTO {table} ({key_str[:-1]}) VALUES \
                ({value_str[:-1]})"
