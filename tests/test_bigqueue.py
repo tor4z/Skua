@@ -15,7 +15,7 @@ class PriorityV:
 
     def __init__(self, data):
         self.data = data
-        self.Priority = random.randint(0, 20)
+        self.priority = random.randint(0, 20)
 
 
 class PriorityF:
@@ -23,7 +23,7 @@ class PriorityF:
     def __init__(self, data):
         self.data = data
 
-    def Priority(self):
+    def priority(self):
         return random.randint(0, 20)
 
 
@@ -165,7 +165,7 @@ class TestBigQueueSQLite(unittest.TestCase):
         count = random.randint(30, 50)
         lst = []
         for k in range(count):
-            obj = PriorityV(random_str(k))
+            obj = PriorityF(random_str(k))
             lst.append(obj)
             q.put(obj)
         
