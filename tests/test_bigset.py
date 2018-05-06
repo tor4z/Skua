@@ -97,6 +97,30 @@ class TestBigSetSQLite(unittest.TestCase):
         self.assertEqual(len(bs), 0)
         bs.delete()
 
+    def test_type_checker(self):
+        bs = self.get_bs()
+        count = random.randint(30, 50)
+
+        class Test:
+            def __hash__(self):
+                return None
+
+        for _ in range(count):
+            with self.assertRaises(TypeError):
+                bs.add(random.randint(0, 100))
+            with self.assertRaises(TypeError):
+                bs.add(Test())
+
+        with self.assertRaises(TypeError):
+            bs.update(random.randint(0, 100))
+
+        with self.assertRaises(KeyError):
+            bs.pop()
+
+        self.assertEqual(len(bs), 0)
+        bs.delete()
+
+
 class TestBigSetMySQL(TestBigSetSQLite):
     def get_bd(self):
         mysql = MySQLDB()
