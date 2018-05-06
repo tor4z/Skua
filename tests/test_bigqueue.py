@@ -220,6 +220,7 @@ class TestBigQueueSQLite(unittest.TestCase):
         q = self.get_priority_queue(maxsize=count)
 
         def producer(q):
+            k = random.randint(20, 50)
             obj = PriorityF(random_str(k))
             q.put(obj)
 
