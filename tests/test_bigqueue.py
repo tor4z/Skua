@@ -22,9 +22,10 @@ class PriorityF:
 
     def __init__(self, data):
         self.data = data
+        self._priority = random.randint(0, 20)
 
     def priority(self):
-        return random.randint(0, 20)
+        return self._priority
 
 
 class TestBigQueueSQLite(unittest.TestCase):
@@ -167,7 +168,7 @@ class TestBigQueueSQLite(unittest.TestCase):
             obj = PriorityF(random_str(k))
             lst.append(obj)
             q.put(obj)
-        
+
         old = None
         for _ in range(count):
             obj = q.get(block=False)

@@ -145,7 +145,9 @@ class BigPriorityQueue(BigQueue):
             self._adapter.add_one(self._table, data)
 
     def _get(self):
-        result = self._adapter.find_one(self._table, {}, orderby=self.PRIORITY)
+        result = self._adapter.find_one(self._table, {},
+                                        orderby=self.PRIORITY,
+                                        asc=True)
         self._adapter.remove(self._table, {self.HASH: result.get(self.HASH)})
         return self._loads(result.get(self.OBJECT))
 
