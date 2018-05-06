@@ -215,7 +215,7 @@ class TestBigQueueSQLite(unittest.TestCase):
         for t in consumer_threads:
             t.join()
 
-    def test_multi_thread_put():
+    def test_multi_thread_put(self):
         count = 20
         q = self.get_priority_queue(maxsize=count)
 
