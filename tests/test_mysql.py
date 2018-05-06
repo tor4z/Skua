@@ -204,7 +204,7 @@ class TestMySQL(unittest.TestCase):
 
         for _ in range(count):
             user = mysql.find_one(table, {})
-            user["age"] = random.randint(50, 100)
+            user["age"] = random.randint(50, 101)
             mysql.add_update(table, user, {"name": user["name"]})
             new_user = mysql.find_one(table, {"name": user["name"]})
             self.assertTrue(user["age"] == new_user["age"])

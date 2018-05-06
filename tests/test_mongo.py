@@ -154,7 +154,7 @@ class TestMongoDB(unittest.TestCase):
             new_users = mongo.find_many(table, {"name": user["name"]})
             self.assertEqual(len(new_users), 1)
 
-            user["age"] = random.randint(100, 120)
+            user["age"] = random.randint(101, 120)
             mongo.add_update(table, user)
             new_users = mongo.find_many(table, {"name": user["name"]})
             self.assertEqual(len(new_users), 2)
