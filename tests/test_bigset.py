@@ -11,6 +11,16 @@ def random_str(k):
     return "".join(random.choices(_STR, k=5))
 
 
+class Test:
+    def __hash__(self):
+        return None
+
+
+class TestNoHash:
+    def __init__(self):
+        pass
+
+
 class TestBigSetSQLite(unittest.TestCase):
     def get_bs(self):
         return BigSet()
@@ -100,13 +110,6 @@ class TestBigSetSQLite(unittest.TestCase):
     def test_type_checker(self):
         bs = self.get_bs()
         count = random.randint(30, 50)
-
-        class Test:
-            def __hash__(self):
-                return None
-
-        class TestNoHash:
-            pass
 
         for _ in range(count):
             with self.assertRaises(TypeError):
