@@ -41,7 +41,7 @@ class BigDict(Container):
         self._adapter.remove(self._table, {self.KEY: key})
 
     def __contains__(self, key):
-        result = result = self._find_one_by_key(key)
+        result = self._find_one_by_key(key)
         if result:
             return True
         else:
