@@ -16,7 +16,7 @@ class SQLiteDB(ABCDatabase):
 
     def __init__(self):
         super().__init__()
-        self._cursors = {}
+        self.mutex = threading.Lock()
 
     def close(self):
         self.cursor.close()
@@ -30,30 +30,12 @@ class SQLiteDB(ABCDatabase):
         self._timeout = timeout
         self._connected = True
 
-    def new_connection(self):
-        conn = sqlite3.connect(
+    def _reconnection(self):
+        self._conn = sqlite3.connect(
             database=self._database,
-            timeout=self._timeout)
-        conn.row_factory = sqlite3.Row
-        return conn
-
-    @property
-    def cursor(self):
-        thread_id = threading.get_ident()
-        cursor = self._cursors.get(thread_id, None)
-        if cursor is None:
-            cursor = self.conn.cursor()
-            self._cursors[thread_id] = cursor
-        return cursor
-
-    @property
-    def conn(self):
-        if not self._connected:
-            raise DatabaseError("Databse not connected.")
-
-        if self._conn is None:
-            self._conn = self.new_connection()
-        return self._conn
+            timeout=self._timeout,
+            check_same_thread=False)
+        self._conn.row_factory = sqlite3.Row
 
     @property
     def is_open(self):
@@ -103,6 +85,18 @@ class SQLiteDB(ABCDatabase):
 
         return f"INSERT INTO {table} ({key_str[:-1]}) VALUES \
                ({value_str[:-1]})"
+
+    def execute(self, sql, args={}):
+        with self.mutex:
+            rows = self.cursor.execute(sql, args)
+            self.conn.commit()
+            return rows
+
+    def executemany(self, sql, args):
+        with self.mutex:
+            rows = self.cursor.executemany(sql, args)
+            self.conn.commit()
+            return rows
 
     def _find(self, table, fields, orderby=None, asc=True,
               limit=None, offset=0):
