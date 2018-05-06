@@ -30,7 +30,7 @@ class SQLiteDB(ABCDatabase):
         self._timeout = timeout
         self._connected = True
 
-    def _reconnection(self):
+    def _reconnect(self):
         self._conn = sqlite3.connect(
             database=self._database,
             timeout=self._timeout,
